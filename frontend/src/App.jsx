@@ -22,7 +22,16 @@ function App({ roomId, onLeave }) {
   const pendingFullStateRef = useRef(null);
   const logContainerRef = useRef(null);
   const [rollResult, setRollResult] = useState(null); // { d1, d2, total } for toast
+  const [balanceToasts, setBalanceToasts] = useState({}); // { [playerId]: [{ id, amount }] }
+  const prevBalancesRef = useRef({}); // { [playerId]: balance }
+  const [errorToast, setErrorToast] = useState(null);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const showErrorToast = (msg) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 3500);
+  };
   const [boardScale, setBoardScale] = useState(1);
 
   // Resize handler for scaling board
@@ -115,6 +124,47 @@ function App({ roomId, onLeave }) {
   };
 
   const handleBuildHouse = (propertyId) => {
+    const propState = gameState.properties?.[propertyId];
+    if (!propState) return;
+
+    const cell = boardCells.find(c => c.id === propertyId);
+    if (!cell || cell.type !== 'street') return;
+
+    // Проверка монополии
+    const colorGroup = boardCells.filter(c => c.color === cell.color);
+    const ownsAll = colorGroup.every(c => gameState.properties?.[c.id]?.owner_id === clientId);
+    if (!ownsAll) {
+      showErrorToast('Для постройки нужна монополия (все улицы этого цвета)!');
+      return;
+    }
+
+    // Проверка залога
+    const anyMortgaged = colorGroup.some(c => gameState.properties?.[c.id]?.mortgaged);
+    if (anyMortgaged) {
+      showErrorToast('Нельзя строить, пока есть заложенные участки этого цвета!');
+      return;
+    }
+
+    // Проверка максимума
+    const currentHouses = propState.houses || 0;
+    if (currentHouses >= 5) {
+      showErrorToast('Достигнут максимум построек (Отель)!');
+      return;
+    }
+
+    // Проверка равномерной застройки
+    const minHouses = Math.min(...colorGroup.map(c => gameState.properties?.[c.id]?.houses || 0));
+    if (currentHouses > minHouses) {
+      showErrorToast('Нужно застраивать улицы равномерно!');
+      return;
+    }
+
+    // Проверка баланса
+    if (gameState.players[clientId].balance < cell.houseCost) {
+      showErrorToast('Недостаточно средств для постройки!');
+      return;
+    }
+
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({ type: 'BUILD_HOUSE', propertyId }));
     }
@@ -239,6 +289,42 @@ function App({ roomId, onLeave }) {
     }
   }, [gameState.logs]);
 
+  // Track balance changes to show toasts
+  useEffect(() => {
+    const players = gameState.players;
+    if (!players) return;
+
+    const newToasts = { ...balanceToasts };
+    let hasChanges = false;
+
+    Object.entries(players).forEach(([id, data]) => {
+      const currentBalance = data.balance;
+      const prevBalance = prevBalancesRef.current[id];
+
+      if (prevBalance !== undefined && currentBalance !== prevBalance) {
+        const diff = currentBalance - prevBalance;
+        if (!newToasts[id]) newToasts[id] = [];
+        
+        const toastId = Date.now() + Math.random();
+        newToasts[id].push({ id: toastId, amount: diff });
+        hasChanges = true;
+
+        // Auto-remove toast after 2.5s
+        setTimeout(() => {
+          setBalanceToasts(prev => {
+            const playerToasts = prev[id] ? prev[id].filter(t => t.id !== toastId) : [];
+            return { ...prev, [id]: playerToasts };
+          });
+        }, 2500);
+      }
+      prevBalancesRef.current[id] = currentBalance;
+    });
+
+    if (hasChanges) {
+      setBalanceToasts(newToasts);
+    }
+  }, [gameState.players]);
+
   const endGame = async () => {
     if (!confirm('Завершить игру? Весь прогресс будет утерян.')) return;
     try {
@@ -279,6 +365,9 @@ function App({ roomId, onLeave }) {
               <button className="settings-btn" onClick={() => setSettingsOpen(o => !o)}>⚙️</button>
               {settingsOpen && (
                 <div className="settings-dropdown">
+                  <button className="settings-item" onClick={() => { setInstructionsOpen(true); setSettingsOpen(false); }}>
+                    📖 Инструкция
+                  </button>
                   <button className="settings-item danger" onClick={endGame}>
                     🛑 Завершить игру
                   </button>
@@ -287,6 +376,66 @@ function App({ roomId, onLeave }) {
             </div>
           </div>
           <p className="client-id">ID: {clientId}</p>
+          
+          {/* Error Toast */}
+          <AnimatePresence>
+            {errorToast && (
+              <motion.div
+                className="error-toast"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                {errorToast}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Модал: Инструкция */}
+          <AnimatePresence>
+            {instructionsOpen && (
+              <motion.div
+                className="card-modal-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setInstructionsOpen(false)}
+                style={{ zIndex: 3000 }}
+              >
+                <motion.div
+                  className="instructions-modal"
+                  initial={{ scale: 0.8, y: 40 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="instructions-header">
+                    <h2>📖 Правила игры Monopoly</h2>
+                    <button className="prop-card-close" onClick={() => setInstructionsOpen(false)}>✕</button>
+                  </div>
+                  <div className="instructions-content">
+                    <h3>Цель игры</h3>
+                    <p>Остаться единственным игроком, не ставшим банкротом. Покупайте недвижимость, стройте дома и отели, собирайте арендную плату с других игроков.</p>
+                    
+                    <h3>Покупка недвижимости</h3>
+                    <p>Когда вы попадаете на свободный участок, вы можете купить его за указанную цену. Если вы отказываетесь, участок выставляется на аукцион.</p>
+                    
+                    <h3>Монополии и Строительство</h3>
+                    <p>Собрав все карточки одного цвета (монополию), вы удваиваете базовую аренду. На монополиях можно строить дома (максимум 4) и отель (5-й уровень). <b>Правило:</b> дома нужно строить <i>равномерно</i>. Нельзя построить 2-й дом на участке, если на остальных участках этого цвета стоит только 1 дом.</p>
+                    
+                    <h3>Залог (Ипотека)</h3>
+                    <p>Если нужны деньги, вы можете заложить незастроенную собственность за 50% её стоимости. Выкуп стоит 110% от суммы залога. Заложенная собственность не приносит арендную плату.</p>
+                    
+                    <h3>Тюрьма</h3>
+                    <p>В тюрьму можно попасть 3 способами: поле "Отправляйтесь в тюрьму", карточка Шанс/Казна, или выпадение дубля 3 раза подряд. Выйти можно бросив дубль (3 попытки), заплатив штраф $50 или использовав карточку освобождения.</p>
+
+                    <h3>Аукционы</h3>
+                    <p>Если игрок отказывается купить недвижимость, на которую попал, она продается с молотка. Ставки делаются по очереди.</p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {gameState.current_turn_player_id === clientId ? (
             <div className="turn-indicator my-turn">Ваш ход!</div>
@@ -308,7 +457,7 @@ function App({ roomId, onLeave }) {
               }} style={{ width: '100%', fontSize: '14px' }}>
                 Заплатить $50
               </button>
-              {gameState.players[clientId].jail_cards > 0 && (
+              {gameState.players[clientId]?.jail_cards > 0 && (
                 <button className="modal-btn" onClick={() => {
                   if (ws.current) ws.current.send(JSON.stringify({ type: 'USE_JAIL_CARD' }));
                 }} style={{ width: '100%', fontSize: '14px', background: '#ffa500' }}>
@@ -341,11 +490,31 @@ function App({ roomId, onLeave }) {
             {Object.entries(players).map(([id, data], idx) => (
               <div key={id} className={`player-info ${id === clientId ? 'me' : ''}`}>
                 <div className="player-token" style={{ backgroundColor: `hsl(${idx * 137 % 360}, 70%, 50%)` }}></div>
-                <div>
-                  <strong>{id === clientId ? 'Ты' : data.name || `Игрок ${id.substring(0, 4)}`}</strong>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <strong>
+                    {id === clientId ? 'Ты' : data.name || `Игрок ${id.substring(0, 4)}`}
+                    {id === gameState.current_turn_player_id && ' 🎲'}
+                    {(data.jail_turns || 0) > 0 && ' 🚓'}
+                  </strong>
                   <div className="balance">${data.balance}</div>
-                </div>
+                  
+                  {/* Balance Toasts */}
+                <AnimatePresence>
+                  {balanceToasts[id] && balanceToasts[id].map(toast => (
+                    <motion.div
+                      key={toast.id}
+                      className={`balance-toast ${toast.amount > 0 ? 'positive' : 'negative'}`}
+                      initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                      animate={{ opacity: 1, y: -25, scale: 1 }}
+                      exit={{ opacity: 0, y: -40, scale: 0.8 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      {toast.amount > 0 ? '+' : ''}{toast.amount}$
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
+            </div>
             ))}
           </div>
 

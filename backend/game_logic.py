@@ -178,7 +178,8 @@ class Game:
             self.landing_event = {
                 "action": "draw_card",
                 "type": cell["type"],
-                "card": card
+                "card": card,
+                "for_player": client_id
             }
             
             self.log_event(f"{player_name} тянет карту «{cell['name']}»: {card['text']}")

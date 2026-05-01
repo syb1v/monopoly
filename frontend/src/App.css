@@ -845,3 +845,90 @@ body {
   line-height: 1;
   text-shadow: 0 0 20px rgba(255, 220, 80, 0.7);
 }
+
+/* ===== Balance Change Toast ===== */
+.balance-toast {
+  position: absolute;
+  top: -25px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 100;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.balance-toast.positive {
+  color: #4CAF50;
+}
+.balance-toast.negative {
+  color: #F44336;
+}
+.player-info {
+  position: relative; /* For balance toast absolute positioning */
+}
+
+/* ===== Error Toast ===== */
+.error-toast {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e53935;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 2000;
+  box-shadow: 0 4px 16px rgba(229, 57, 53, 0.4);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ===== Instructions Modal ===== */
+.instructions-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.instructions-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.2);
+}
+
+.instructions-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.instructions-content {
+  padding: 20px;
+  overflow-y: auto;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.instructions-content h3 {
+  color: #fff;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.instructions-content h3:first-child {
+  margin-top: 0;
+}
