@@ -1,0 +1,39 @@
+# ========================
+# Node.js / Фронтенд (Vite)
+# ========================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================
+# Python / Бэкенд (FastAPI)
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ========================
+# Секреты и конфигурации
+# ========================
+.env
+.env.*
+*.pem
+secrets.json
+
+# ========================
+# IDE и ОС
+# ========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp

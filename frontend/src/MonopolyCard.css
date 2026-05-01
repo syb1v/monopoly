@@ -1,0 +1,122 @@
+.monopoly-card {
+  width: 240px;
+  height: 360px;
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 4px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+  padding: 8px;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  border: 2px solid #000;
+  text-align: center;
+  padding: 10px 5px;
+  margin-bottom: 15px;
+}
+
+.card-subtitle {
+  display: block;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-title {
+  margin: 5px 0 0 0;
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 5px;
+}
+
+.rent-base {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.rent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.rent-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.rent-hotel {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.card-footer {
+  border-top: 1px solid #000;
+  padding-top: 10px;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.card-footer p {
+  margin: 2px 0;
+}
+
+/* --- Special Cards Styles --- */
+.card-header-icon {
+  font-size: 60px;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.card-title-special {
+  text-align: center;
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+}
+
+.special-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.special-footer {
+  border-top: 1px solid #000;
+  padding-top: 15px;
+  margin-top: auto;
+  font-size: 12px;
+}
+
+.utility-desc {
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.5;
+  padding: 0 10px;
+}
+
+.utility-desc p {
+  margin-bottom: 10px;
+}
