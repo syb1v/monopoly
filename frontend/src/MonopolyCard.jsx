@@ -2,9 +2,19 @@ import React from 'react';
 import './MonopolyCard.css';
 
 export default function MonopolyCard({ property }) {
+  const renderBack = () => (
+    <div className="card-back">
+      <h2>{property.name}</h2>
+      <div className="mortgage-text">ЗАЛОГ</div>
+      <div className="buyback-cost">Выкуп: ${Math.floor(property.mortgageValue * 1.1)}</div>
+    </div>
+  );
+
   if (property.type === 'street') {
     return (
-      <div className="monopoly-card">
+      <div className={`monopoly-card ${property.mortgaged ? 'is-flipped' : ''}`}>
+        <div className="card-inner">
+          <div className="card-front">
         <div
           className="card-header"
           style={{ backgroundColor: property.color }}
@@ -31,13 +41,18 @@ export default function MonopolyCard({ property }) {
             <p>Залоговая стоимость: ${property.mortgageValue}</p>
           </div>
         </div>
+          </div>
+          {renderBack()}
+        </div>
       </div>
     );
   }
 
   if (property.type === 'railroad') {
     return (
-      <div className="monopoly-card">
+      <div className={`monopoly-card ${property.mortgaged ? 'is-flipped' : ''}`}>
+        <div className="card-inner">
+          <div className="card-front">
         <div className="card-header-icon">🚂</div>
         <h2 className="card-title-special">{property.name}</h2>
 
@@ -53,6 +68,9 @@ export default function MonopolyCard({ property }) {
             <p>Залоговая стоимость: ${property.mortgageValue}</p>
           </div>
         </div>
+          </div>
+          {renderBack()}
+        </div>
       </div>
     );
   }
@@ -60,7 +78,9 @@ export default function MonopolyCard({ property }) {
   if (property.type === 'utility') {
     const icon = property.id === 'prop_12' ? '💡' : '🚰';
     return (
-      <div className="monopoly-card">
+      <div className={`monopoly-card ${property.mortgaged ? 'is-flipped' : ''}`}>
+        <div className="card-inner">
+          <div className="card-front">
         <div className="card-header-icon">{icon}</div>
         <h2 className="card-title-special">{property.name}</h2>
 
@@ -73,6 +93,9 @@ export default function MonopolyCard({ property }) {
           <div className="card-footer special-footer">
             <p>Залоговая стоимость: ${property.mortgageValue}</p>
           </div>
+        </div>
+          </div>
+          {renderBack()}
         </div>
       </div>
     );

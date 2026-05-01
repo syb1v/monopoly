@@ -582,7 +582,15 @@ class Game:
         if any_mortgaged:
             return
 
-        # Build evenly rule (simplified: just allow building if they have money)
+        # Build evenly rule
+        current_houses = prop_state.get("houses", 0)
+        min_houses_in_group = min(
+            self.properties.get(c["id"], {}).get("houses", 0) 
+            for c in color_group
+        )
+        if current_houses > min_houses_in_group:
+            return
+
         cost = cell["houseCost"]
         if self.players[client_id]["balance"] < cost:
             return

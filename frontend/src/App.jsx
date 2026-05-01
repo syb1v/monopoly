@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MonopolyCard from './MonopolyCard';
+import Dice3D from './Dice3D';
 import { propertiesData, boardCells } from './data/cards';
 import './App.css';
 
@@ -52,7 +53,16 @@ function App({ roomId, onLeave }) {
   }, []);
 
   // Стейт для карточек
-  const [selectedProp, setSelectedProp] = useState(null);
+  const [selectedPropId, setSelectedPropId] = useState(null);
+
+  // Вычисляем текущую выбранную карточку динамически, чтобы она всегда имела свежие данные из gameState
+  const currentProp = selectedPropId
+    ? {
+        ...boardCells.find(c => c.id === selectedPropId),
+        houses: gameState.properties?.[selectedPropId]?.houses || 0,
+        mortgaged: gameState.properties?.[selectedPropId]?.mortgaged || false
+      }
+    : null;
 
   // Landing event from backend
   const landingEvent = gameState.landing_event && gameState.landing_event.for_player === clientId
@@ -127,10 +137,58 @@ function App({ roomId, onLeave }) {
         const newRollId = data.state.last_roll?.id;
         if (newRollId && newRollId !== lastRollIdRef.current) {
           lastRollIdRef.current = newRollId;
+          
+          // Start 3D dice animation immediately by keeping old state but setting isRolling
           setIsRolling(true);
-          setTimeout(() => setIsRolling(false), 600);
+          
+          setGameState(prevState => {
+            if (!prevState) return data.state;
+            return {
+              ...data.state,
+              players: prevState.players, // Keep old positions
+              landing_event: prevState.landing_event, // Keep old modals (usually null)
+              logs: prevState.logs, // Keep old logs
+            };
+          });
+
+          // Wait 1.5s for dice roll to finish
+          setTimeout(() => {
+            setIsRolling(false);
+            
+            // Now start moving the piece
+            setGameState(prevState => {
+              return {
+                ...data.state,
+                landing_event: prevState.landing_event, // Still hide modals
+                logs: prevState.logs, // Still hide new logs
+              };
+            });
+
+            // Calculate movement duration
+            // We need to know who moved. Usually it's the current player.
+            const turnPlayerId = data.state.current_turn_player_id;
+            setGameState(currentPrevState => {
+              const oldPos = currentPrevState.players?.[turnPlayerId]?.position || 0;
+              const newPos = data.state.players[turnPlayerId].position;
+              let steps = newPos - oldPos;
+              if (steps < 0) steps += 40;
+              if (oldPos === newPos) steps = 0;
+              
+              const moveDuration = steps * 200; // 200ms per cell from the visualPositions interval
+
+              // Wait for movement to finish, then show modals/logs
+              setTimeout(() => {
+                setGameState(data.state);
+              }, moveDuration + 50);
+              
+              return currentPrevState; // Keep the moving state we just set
+            });
+            
+          }, 1500);
+
+        } else {
+          setGameState(data.state);
         }
-        setGameState(data.state);
       }
     };
 
@@ -197,11 +255,6 @@ function App({ roomId, onLeave }) {
   const cells = boardCells;
   const players = gameState.players || {};
   const lastRoll = gameState.last_roll;
-
-  const DiceDot = ({ value }) => {
-    const dots = Array.from({ length: value }, (_, i) => <div key={i} className="dice-dot"></div>);
-    return <div className={`dice-face face-${value}`}>{dots}</div>;
-  };
 
   return (
     <div className="app-global-wrapper">
@@ -298,7 +351,7 @@ function App({ roomId, onLeave }) {
                 <h3>Моя недвижимость</h3>
                 <div className="inventory-list">
                   {myProps.map(p => (
-                    <div key={p.id} className="inventory-item" onClick={() => setSelectedProp(p)}>
+                    <div key={p.id} className="inventory-item" onClick={() => setSelectedPropId(p.id)}>
                       {p.color && <span className="inv-color" style={{ backgroundColor: p.color }}></span>}
                       {p.type === 'railroad' && <span className="inv-icon">🚂</span>}
                       {p.type === 'utility' && <span className="inv-icon">{p.id === 'prop_12' ? '💡' : '🚰'}</span>}
@@ -339,13 +392,13 @@ function App({ roomId, onLeave }) {
 
               {/* Модал: карточка из инвентаря */}
               <AnimatePresence>
-                {selectedProp && (
+                {currentProp && (
                   <motion.div
                     className="card-modal-overlay"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={() => setSelectedProp(null)}
+                    onClick={() => setSelectedPropId(null)}
                   >
                     <motion.div
                       className="prop-card-modal"
@@ -355,23 +408,23 @@ function App({ roomId, onLeave }) {
                       transition={{ type: 'spring', damping: 15 }}
                       onClick={e => e.stopPropagation()}
                     >
-                      <MonopolyCard property={selectedProp} />
+                      <MonopolyCard property={currentProp} />
                       <div className="prop-actions" style={{ display: 'flex', gap: '8px', width: '100%', flexDirection: 'column' }}>
-                        {selectedProp.type === 'street' && selectedProp.houses < 5 && !selectedProp.mortgaged && (
-                          <button className="modal-btn buy" onClick={() => handleBuildHouse(selectedProp.id)}>
-                            Построить ({selectedProp.houses === 4 ? 'Отель' : 'Дом'} за ${selectedProp.houseCost})
+                        {currentProp.type === 'street' && currentProp.houses < 5 && !currentProp.mortgaged && (
+                          <button className="modal-btn buy" onClick={() => handleBuildHouse(currentProp.id)}>
+                            Построить ({currentProp.houses === 4 ? 'Отель' : 'Дом'} за ${currentProp.houseCost})
                           </button>
                         )}
-                        {selectedProp.mortgaged ? (
-                          <button className="modal-btn buy" onClick={() => handleUnmortgage(selectedProp.id)}>
-                            Выкупить за ${Math.floor(selectedProp.mortgageValue * 1.1)}
+                        {currentProp.mortgaged ? (
+                          <button className="modal-btn buy" onClick={() => handleUnmortgage(currentProp.id)}>
+                            Выкупить за ${Math.floor(currentProp.mortgageValue * 1.1)}
                           </button>
                         ) : (
-                          <button className="modal-btn decline" onClick={() => handleMortgage(selectedProp.id)}>
-                            Заложить за ${selectedProp.mortgageValue}
+                          <button className="modal-btn decline" onClick={() => handleMortgage(currentProp.id)}>
+                            Заложить за ${currentProp.mortgageValue}
                           </button>
                         )}
-                        <button className="prop-card-close" style={{ marginTop: '8px' }} onClick={() => setSelectedProp(null)}>✕ Закрыть</button>
+                        <button className="prop-card-close" style={{ marginTop: '8px' }} onClick={() => setSelectedPropId(null)}>✕ Закрыть</button>
                       </div>
                     </motion.div>
                   </motion.div>
@@ -379,69 +432,15 @@ function App({ roomId, onLeave }) {
               </AnimatePresence>
 
               <h2 className="logo-text">MONOPOLY</h2>
-              <AnimatePresence>
-                {lastRoll && (() => {
-                  // Генерируем детерминированный разброс для кубиков
-                  const getHash = (str) => {
-                    let hash = 0;
-                    for (let i = 0; i < str.length; i++) {
-                      hash = (hash << 5) - hash + str.charCodeAt(i);
-                      hash |= 0;
-                    }
-                    return Math.abs(hash);
-                  };
-
-                  const seed1 = getHash(lastRoll.id + "-d1");
-                  const seed2 = getHash(lastRoll.id + "-d2");
-
-                  // Раскидываем кубики так, чтобы они гарантированно не слипались
-                  // Кубик 1 летит левее, Кубик 2 летит правее
-                  const dice1Scatter = {
-                    x: (seed1 % 100) - 100, // от -100 до 0
-                    y: ((seed1 * 13) % 160) - 80,
-                    rot: (seed1 * 7) % 360
-                  };
-                  const dice2Scatter = {
-                    x: (seed2 % 100) + 20, // от +20 до +120
-                    y: ((seed2 * 17) % 160) - 80,
-                    rot: (seed2 * 11) % 360
-                  };
-
-                  return (
-                    <div className="dice-container">
-                      <motion.div
-                        key={`dice1-${lastRoll.id}`}
-                        className="dice"
-                        initial={{ x: 0, y: 200, rotate: 0, scale: 0.5 }}
-                        animate={{ 
-                          x: dice1Scatter.x, 
-                          y: dice1Scatter.y, 
-                          rotate: dice1Scatter.rot + 720, 
-                          scale: 1 
-                        }}
-                        transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
-                      >
-                        <DiceDot value={lastRoll.dice1} />
-                      </motion.div>
-
-                      <motion.div
-                        key={`dice2-${lastRoll.id}`}
-                        className="dice"
-                        initial={{ x: 0, y: 200, rotate: 0, scale: 0.5 }}
-                        animate={{ 
-                          x: dice2Scatter.x, 
-                          y: dice2Scatter.y, 
-                          rotate: dice2Scatter.rot + 1080, 
-                          scale: 1 
-                        }}
-                        transition={{ duration: 0.6, type: 'spring', bounce: 0.5 }}
-                      >
-                        <DiceDot value={lastRoll.dice2} />
-                      </motion.div>
-                    </div>
-                  );
-                })()}
-              </AnimatePresence>
+              {lastRoll && (
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>
+                  <Dice3D 
+                    dice1={lastRoll.dice1} 
+                    dice2={lastRoll.dice2} 
+                    isRolling={isRolling} 
+                  />
+                </div>
+              )}
 
               <AnimatePresence>
                 {gameState.auction_state && (

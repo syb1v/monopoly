@@ -1,0 +1,102 @@
+.dice-container-3d {
+  display: flex;
+  gap: 40px;
+  perspective: 1000px;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  margin-bottom: 20px;
+}
+
+.die-3d {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.die-3d.rolling {
+  transition: transform 1.5s linear;
+}
+
+.face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+  box-shadow: inset 0 3px #111, inset 0 -3px #555;
+}
+
+/* Positioning faces */
+.front  { transform: translateZ(30px); }
+.back   { transform: rotateY(180deg) translateZ(30px); }
+.right  { transform: rotateY(90deg) translateZ(30px); }
+.left   { transform: rotateY(-90deg) translateZ(30px); }
+.top    { transform: rotateX(90deg) translateZ(30px); }
+.bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+/* Dot Layouts using Grid */
+.front { justify-content: center; align-items: center; }
+
+.back { 
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+}
+.back .dot:nth-child(1), .back .dot:nth-child(2) { align-self: start; }
+.back .dot:nth-child(3), .back .dot:nth-child(4) { align-self: center; }
+.back .dot:nth-child(5), .back .dot:nth-child(6) { align-self: end; }
+.back .dot:nth-child(even) { justify-self: end; }
+.back .dot:nth-child(odd) { justify-self: start; }
+
+
+.right { 
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+.right .dot:nth-child(odd) { justify-self: start; }
+.right .dot:nth-child(even) { justify-self: end; }
+.right .dot:nth-child(3), .right .dot:nth-child(4) { align-self: end; }
+
+.left { 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.left .dot:nth-child(1) { grid-area: 1 / 3 / 2 / 4; justify-self: end; }
+.left .dot:nth-child(2) { grid-area: 2 / 2 / 3 / 3; justify-self: center; align-self: center;}
+.left .dot:nth-child(3) { grid-area: 3 / 1 / 4 / 2; align-self: end;}
+
+.top { 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.top .dot:nth-child(1) { grid-area: 1 / 1 / 2 / 2; }
+.top .dot:nth-child(2) { grid-area: 1 / 3 / 2 / 4; justify-self: end;}
+.top .dot:nth-child(3) { grid-area: 2 / 2 / 3 / 3; justify-self: center; align-self: center;}
+.top .dot:nth-child(4) { grid-area: 3 / 1 / 4 / 2; align-self: end;}
+.top .dot:nth-child(5) { grid-area: 3 / 3 / 4 / 4; justify-self: end; align-self: end;}
+
+.bottom { 
+  display: flex;
+  justify-content: space-between;
+}
+.bottom .dot:first-child { align-self: flex-start; }
+.bottom .dot:last-child { align-self: flex-end; }
