@@ -18,6 +18,10 @@ function App({ roomId, onLeave }) {
   const ws = useRef(null);
   const lastRollIdRef = useRef(null);
   const [isRolling, setIsRolling] = useState(false);
+  const gameStateRef = useRef({ players: {} });
+  const pendingFullStateRef = useRef(null);
+  const logContainerRef = useRef(null);
+  const [rollResult, setRollResult] = useState(null); // { d1, d2, total } for toast
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [boardScale, setBoardScale] = useState(1);
 
@@ -137,56 +141,58 @@ function App({ roomId, onLeave }) {
         const newRollId = data.state.last_roll?.id;
         if (newRollId && newRollId !== lastRollIdRef.current) {
           lastRollIdRef.current = newRollId;
-          
-          // Start 3D dice animation immediately by keeping old state but setting isRolling
-          setIsRolling(true);
-          
-          setGameState(prevState => {
-            if (!prevState) return data.state;
-            return {
-              ...data.state,
-              players: prevState.players, // Keep old positions
-              landing_event: prevState.landing_event, // Keep old modals (usually null)
-              logs: prevState.logs, // Keep old logs
-            };
-          });
 
-          // Wait 1.5s for dice roll to finish
+          // 1) Capture old positions BEFORE any state change
+          const oldPlayers = gameStateRef.current.players || {};
+          const turnPlayerId = data.state.last_roll?.player_id || data.state.current_turn_player_id;
+          const oldPos = oldPlayers[turnPlayerId]?.position ?? 0;
+          const newPos = data.state.players[turnPlayerId]?.position ?? 0;
+          let steps = newPos - oldPos;
+          if (steps < 0) steps += 40;
+          if (oldPos === newPos) steps = 0;
+
+          // Save full state for later
+          pendingFullStateRef.current = data.state;
+          gameStateRef.current = data.state;
+
+          // 2) Start dice rolling — keep old positions/modals/logs
+          setIsRolling(true);
+          setGameState(prev => ({
+            ...data.state,
+            players: prev.players,
+            landing_event: null,
+            logs: prev.logs,
+          }));
+
+          // 3) After 1.5s dice spin ends → start piece movement + show logs immediately
           setTimeout(() => {
             setIsRolling(false);
-            
-            // Now start moving the piece
-            setGameState(prevState => {
-              return {
-                ...data.state,
-                landing_event: prevState.landing_event, // Still hide modals
-                logs: prevState.logs, // Still hide new logs
-              };
-            });
 
-            // Calculate movement duration
-            // We need to know who moved. Usually it's the current player.
-            const turnPlayerId = data.state.current_turn_player_id;
-            setGameState(currentPrevState => {
-              const oldPos = currentPrevState.players?.[turnPlayerId]?.position || 0;
-              const newPos = data.state.players[turnPlayerId].position;
-              let steps = newPos - oldPos;
-              if (steps < 0) steps += 40;
-              if (oldPos === newPos) steps = 0;
-              
-              const moveDuration = steps * 200; // 200ms per cell from the visualPositions interval
+            // Show roll result toast
+            const roll = data.state.last_roll;
+            if (roll) {
+              setRollResult({ d1: roll.dice1, d2: roll.dice2, total: roll.dice1 + roll.dice2 });
+              setTimeout(() => setRollResult(null), 2500);
+            }
 
-              // Wait for movement to finish, then show modals/logs
-              setTimeout(() => {
-                setGameState(data.state);
-              }, moveDuration + 50);
-              
-              return currentPrevState; // Keep the moving state we just set
-            });
-            
+            // Update positions so the piece starts moving — show logs now, keep modals hidden
+            setGameState(prev => ({
+              ...data.state,
+              landing_event: null,
+              // logs: show the new logs immediately after dice
+            }));
+
+            // 4) After piece finishes moving → show modals/landing event
+            const moveDuration = steps * 200;
+            setTimeout(() => {
+              const fullState = pendingFullStateRef.current || data.state;
+              setGameState(fullState);
+              pendingFullStateRef.current = null;
+            }, moveDuration + 300);
           }, 1500);
 
         } else {
+          gameStateRef.current = data.state;
           setGameState(data.state);
         }
       }
@@ -225,6 +231,13 @@ function App({ roomId, onLeave }) {
 
     return () => clearInterval(interval);
   }, [gameState.players]);
+
+  // Auto-scroll logs to bottom whenever they update
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [gameState.logs]);
 
   const endGame = async () => {
     if (!confirm('Завершить игру? Весь прогресс будет утерян.')) return;
@@ -315,7 +328,7 @@ function App({ roomId, onLeave }) {
 
           <div className="event-log-container">
             <h3>Чат событий</h3>
-            <div className="event-log">
+            <div className="event-log" ref={logContainerRef}>
               {gameState.logs && gameState.logs.map((log, i) => (
                 <div key={i} className={`log-entry ${i === gameState.logs.length - 1 ? 'latest' : ''}`}>
                   {log}
@@ -433,14 +446,28 @@ function App({ roomId, onLeave }) {
 
               <h2 className="logo-text">MONOPOLY</h2>
               {lastRoll && (
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>
-                  <Dice3D 
-                    dice1={lastRoll.dice1} 
-                    dice2={lastRoll.dice2} 
-                    isRolling={isRolling} 
-                  />
-                </div>
+                <Dice3D 
+                  dice1={lastRoll.dice1} 
+                  dice2={lastRoll.dice2} 
+                  isRolling={isRolling} 
+                />
               )}
+
+              {/* Roll result toast */}
+              <AnimatePresence>
+                {rollResult && (
+                  <motion.div
+                    className="roll-result-toast"
+                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                    transition={{ type: 'spring', damping: 14, stiffness: 200 }}
+                  >
+                    <span className="roll-result-dice">{rollResult.d1} + {rollResult.d2}</span>
+                    <span className="roll-result-total">{rollResult.total}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AnimatePresence>
                 {gameState.auction_state && (

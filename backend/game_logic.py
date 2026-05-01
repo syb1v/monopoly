@@ -127,7 +127,13 @@ class Game:
                     else:
                         self.current_turn_player_id = None
             del self.players[client_id]
-            self.log_event(f"{player_name} покинул игру.")
+            # Release properties owned by this player
+            props_to_release = [pid for pid, pdata in self.properties.items() 
+                               if (isinstance(pdata, dict) and pdata.get("owner_id") == client_id) 
+                               or pdata == client_id]
+            for pid in props_to_release:
+                del self.properties[pid]
+            self.log_event(f"{player_name} покинул игру. Его собственность возвращена в банк.")
 
     def end_turn(self, client_id: str):
         if self.current_turn_player_id == client_id and self.turn_phase == "ACTION":
@@ -222,10 +228,24 @@ class Game:
             return
 
         prop_state = self.properties.get(cell["id"])
-        owner_id = prop_state["owner_id"] if prop_state else None
+        if isinstance(prop_state, dict):
+            owner_id = prop_state.get("owner_id")
+        else:
+            owner_id = prop_state # Legacy format or None
 
         if owner_id is None:
             # Property is free — offer to buy
+            self.landing_event = {
+                "action": "buy",
+                "cell_id": cell["id"],
+                "cell_name": cell["name"],
+                "price": cell["price"],
+                "for_player": client_id,
+            }
+        elif owner_id not in self.players:
+            # Owner left the game
+            self.properties.pop(cell["id"], None)
+            self.log_event(f"Владелец «{cell['name']}» покинул игру. Собственность снова свободна.")
             self.landing_event = {
                 "action": "buy",
                 "cell_id": cell["id"],
@@ -237,16 +257,17 @@ class Game:
             self.log_event(f"{player_name} стоит на своей собственности «{cell['name']}».")
             self.landing_event = None
         else:
-            if prop_state and prop_state.get("mortgaged"):
+            if isinstance(prop_state, dict) and prop_state.get("mortgaged"):
                 self.log_event(f"{player_name} попал на заложенную собственность «{cell['name']}». Аренда не взимается.")
                 self.landing_event = None
                 return
 
             # Pay rent to owner
             rent = self._calc_rent(cell, dice_total)
-            owner_name = self.players.get(owner_id, {}).get("name", "?")
+            owner = self.players[owner_id]
+            owner_name = owner["name"]
             player["balance"] -= rent
-            self.players[owner_id]["balance"] += rent
+            owner["balance"] += rent
             self.log_event(
                 f"{player_name} попал на «{cell['name']}» ({owner_name}) и заплатил аренду ${rent}."
             )
@@ -635,7 +656,12 @@ class Game:
         game = cls()
         game.players = data.get("players", {})
         game.last_roll = data.get("last_roll")
-        game.properties = data.get("properties", {})
+        # Normalize properties: handle legacy format where value was just owner_id string
+        raw_props = data.get("properties", {})
+        game.properties = {
+            pid: ({"owner_id": pval, "houses": 0, "mortgaged": False} if isinstance(pval, str) else pval)
+            for pid, pval in raw_props.items()
+        }
         game.auction_state = data.get("auction_state", None)
         game.turn_order = data.get("turn_order", [])
         game.current_turn_player_id = data.get("current_turn_player_id")

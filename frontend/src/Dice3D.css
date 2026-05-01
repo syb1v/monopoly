@@ -1,102 +1,116 @@
-.dice-container-3d {
+/* ===== 3D Dice Container ===== */
+.dice-scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
   display: flex;
-  gap: 40px;
-  perspective: 1000px;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
-  margin-bottom: 20px;
+  gap: 20px;
+  pointer-events: none;
 }
 
-.die-3d {
-  width: 60px;
-  height: 60px;
+/* ===== Single Die Wrapper ===== */
+.die-wrapper {
+  width: 44px;
+  height: 44px;
+  perspective: 400px;
+}
+
+/* ===== The 3D Cube ===== */
+.die-cube {
+  width: 100%;
+  height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.die-3d.rolling {
-  transition: transform 1.5s linear;
+/* During rolling: fast chaotic keyframe spin */
+.die-cube.is-rolling {
+  transition: none;
+  animation: diceRoll 0.4s linear infinite;
 }
 
-.face {
+@keyframes diceRoll {
+  0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  25%  { transform: rotateX(90deg) rotateY(180deg) rotateZ(45deg); }
+  50%  { transform: rotateX(180deg) rotateY(90deg) rotateZ(90deg); }
+  75%  { transform: rotateX(270deg) rotateY(270deg) rotateZ(135deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
+
+/* ===== Each Face ===== */
+.die-face {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: white;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-  display: flex;
-  padding: 8px;
+  background: #fff;
+  border: 1.5px solid #bbb;
+  border-radius: 6px;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 5px;
   box-sizing: border-box;
+  backface-visibility: hidden;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  background-color: #333;
+/* Face positions in 3D space */
+.die-face--1 { transform: translateZ(22px); }                       /* front */
+.die-face--6 { transform: rotateY(180deg) translateZ(22px); }       /* back */
+.die-face--4 { transform: rotateY(90deg) translateZ(22px); }        /* right */
+.die-face--3 { transform: rotateY(-90deg) translateZ(22px); }       /* left */
+.die-face--5 { transform: rotateX(90deg) translateZ(22px); }        /* top */
+.die-face--2 { transform: rotateX(-90deg) translateZ(22px); }       /* bottom */
+
+/* ===== Dots ===== */
+.die-dot {
+  width: 7px;
+  height: 7px;
+  background: #222;
   border-radius: 50%;
-  box-shadow: inset 0 3px #111, inset 0 -3px #555;
+  margin: auto;
 }
 
-/* Positioning faces */
-.front  { transform: translateZ(30px); }
-.back   { transform: rotateY(180deg) translateZ(30px); }
-.right  { transform: rotateY(90deg) translateZ(30px); }
-.left   { transform: rotateY(-90deg) translateZ(30px); }
-.top    { transform: rotateX(90deg) translateZ(30px); }
-.bottom { transform: rotateX(-90deg) translateZ(30px); }
+/* ===== Dot placement using grid-area ===== */
+/* 1 dot - center */
+.die-face--1 .die-dot { grid-area: 2 / 2; }
 
-/* Dot Layouts using Grid */
-.front { justify-content: center; align-items: center; }
+/* 2 dots - diagonal */
+.die-face--2 .die-dot:nth-child(1) { grid-area: 1 / 3; }
+.die-face--2 .die-dot:nth-child(2) { grid-area: 3 / 1; }
 
-.back { 
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 4px;
+/* 3 dots - diagonal */
+.die-face--3 .die-dot:nth-child(1) { grid-area: 1 / 3; }
+.die-face--3 .die-dot:nth-child(2) { grid-area: 2 / 2; }
+.die-face--3 .die-dot:nth-child(3) { grid-area: 3 / 1; }
+
+/* 4 dots - corners */
+.die-face--4 .die-dot:nth-child(1) { grid-area: 1 / 1; }
+.die-face--4 .die-dot:nth-child(2) { grid-area: 1 / 3; }
+.die-face--4 .die-dot:nth-child(3) { grid-area: 3 / 1; }
+.die-face--4 .die-dot:nth-child(4) { grid-area: 3 / 3; }
+
+/* 5 dots - corners + center */
+.die-face--5 .die-dot:nth-child(1) { grid-area: 1 / 1; }
+.die-face--5 .die-dot:nth-child(2) { grid-area: 1 / 3; }
+.die-face--5 .die-dot:nth-child(3) { grid-area: 2 / 2; }
+.die-face--5 .die-dot:nth-child(4) { grid-area: 3 / 1; }
+.die-face--5 .die-dot:nth-child(5) { grid-area: 3 / 3; }
+
+/* 6 dots - two columns */
+.die-face--6 .die-dot:nth-child(1) { grid-area: 1 / 1; }
+.die-face--6 .die-dot:nth-child(2) { grid-area: 1 / 3; }
+.die-face--6 .die-dot:nth-child(3) { grid-area: 2 / 1; }
+.die-face--6 .die-dot:nth-child(4) { grid-area: 2 / 3; }
+.die-face--6 .die-dot:nth-child(5) { grid-area: 3 / 1; }
+.die-face--6 .die-dot:nth-child(6) { grid-area: 3 / 3; }
+
+/* ===== Flat result state (after landing) ===== */
+/* When the die has landed, we remove perspective so it looks perfectly flat */
+.die-wrapper.is-flat {
+  perspective: none;
 }
-.back .dot:nth-child(1), .back .dot:nth-child(2) { align-self: start; }
-.back .dot:nth-child(3), .back .dot:nth-child(4) { align-self: center; }
-.back .dot:nth-child(5), .back .dot:nth-child(6) { align-self: end; }
-.back .dot:nth-child(even) { justify-self: end; }
-.back .dot:nth-child(odd) { justify-self: start; }
-
-
-.right { 
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-}
-.right .dot:nth-child(odd) { justify-self: start; }
-.right .dot:nth-child(even) { justify-self: end; }
-.right .dot:nth-child(3), .right .dot:nth-child(4) { align-self: end; }
-
-.left { 
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-}
-.left .dot:nth-child(1) { grid-area: 1 / 3 / 2 / 4; justify-self: end; }
-.left .dot:nth-child(2) { grid-area: 2 / 2 / 3 / 3; justify-self: center; align-self: center;}
-.left .dot:nth-child(3) { grid-area: 3 / 1 / 4 / 2; align-self: end;}
-
-.top { 
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-}
-.top .dot:nth-child(1) { grid-area: 1 / 1 / 2 / 2; }
-.top .dot:nth-child(2) { grid-area: 1 / 3 / 2 / 4; justify-self: end;}
-.top .dot:nth-child(3) { grid-area: 2 / 2 / 3 / 3; justify-self: center; align-self: center;}
-.top .dot:nth-child(4) { grid-area: 3 / 1 / 4 / 2; align-self: end;}
-.top .dot:nth-child(5) { grid-area: 3 / 3 / 4 / 4; justify-self: end; align-self: end;}
-
-.bottom { 
-  display: flex;
-  justify-content: space-between;
-}
-.bottom .dot:first-child { align-self: flex-start; }
-.bottom .dot:last-child { align-self: flex-end; }
+/* We MUST keep transform-style: preserve-3d on the cube so the faces aren't flattened before rotation */
