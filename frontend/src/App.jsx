@@ -223,6 +223,15 @@ function App({ roomId, onLeave }) {
       const data = JSON.parse(event.data);
       if (data.type === 'STATE_UPDATE') {
         const newRollId = data.state.last_roll?.id;
+        
+        // If this is the FIRST message and we have a last_roll, just save the ID and don't animate
+        if (lastRollIdRef.current === null && newRollId) {
+          lastRollIdRef.current = newRollId;
+          gameStateRef.current = data.state;
+          setGameState(data.state);
+          return;
+        }
+
         if (newRollId && newRollId !== lastRollIdRef.current) {
           lastRollIdRef.current = newRollId;
 
