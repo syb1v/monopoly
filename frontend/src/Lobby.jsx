@@ -4,6 +4,7 @@ import './Lobby.css';
 export default function Lobby({ onJoin }) {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [playerName, setPlayerName] = useState(() => localStorage.getItem('monopoly_player_name') || '');
 
   const fetchRooms = async () => {
     try {
@@ -20,6 +21,11 @@ export default function Lobby({ onJoin }) {
   }, []);
 
   const handleCreate = async () => {
+    if (!playerName.trim()) {
+      alert('Пожалуйста, введите ваше имя!');
+      return;
+    }
+    localStorage.setItem('monopoly_player_name', playerName.trim());
     setLoading(true);
     try {
       const res = await fetch(`http://${window.location.hostname}:8000/rooms`, { method: 'POST' });
@@ -33,6 +39,11 @@ export default function Lobby({ onJoin }) {
   };
 
   const handleJoin = (roomId) => {
+    if (!playerName.trim()) {
+      alert('Пожалуйста, введите ваше имя!');
+      return;
+    }
+    localStorage.setItem('monopoly_player_name', playerName.trim());
     onJoin(roomId);
   };
 
@@ -45,7 +56,17 @@ export default function Lobby({ onJoin }) {
           <p className="lobby-subtitle">Классическая игра в новом формате</p>
         </div>
 
-        <button className="lobby-start-btn" onClick={handleCreate} disabled={loading}>
+        <div className="lobby-name-input">
+          <input 
+            type="text" 
+            placeholder="Ваш никнейм..." 
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            maxLength={15}
+          />
+        </div>
+
+        <button className="lobby-start-btn" onClick={handleCreate} disabled={loading || !playerName.trim()}>
           {loading ? 'Создаём игру...' : '+ Начать новую игру'}
         </button>
 

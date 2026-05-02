@@ -183,7 +183,9 @@ function App({ roomId, onLeave }) {
   };
 
   useEffect(() => {
-    ws.current = new WebSocket(`ws://${window.location.hostname}:8000/ws/${roomId}/${clientId}`);
+    const playerName = localStorage.getItem('monopoly_player_name') || '';
+    const wsUrl = `ws://${window.location.hostname}:8000/ws/${roomId}/${clientId}?player_name=${encodeURIComponent(playerName)}`;
+    ws.current = new WebSocket(wsUrl);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);

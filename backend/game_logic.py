@@ -96,13 +96,13 @@ class Game:
         if len(self.logs) > 50:
             self.logs.pop(0)
 
-    def add_player(self, client_id: str):
+    def add_player(self, client_id: str, player_name: str = None):
         if client_id not in self.players:
-            player_name = f"Игрок {len(self.turn_order) + 1}"
+            final_name = player_name or f"Игрок {len(self.turn_order) + 1}"
             self.players[client_id] = {
                 "position": 0,
                 "balance": 1500,
-                "name": player_name,
+                "name": final_name,
                 "jail_turns": 0,
                 "jail_cards": 0
             }
@@ -110,7 +110,13 @@ class Game:
             if self.current_turn_player_id is None:
                 self.current_turn_player_id = client_id
                 self.turn_phase = "ROLL"
-            self.log_event(f"{player_name} присоединился к игре.")
+            self.log_event(f"{final_name} присоединился к игре.")
+        else:
+            # Обновляем имя, если игрок перезашел с новым ником
+            if player_name and self.players[client_id]["name"] != player_name:
+                old_name = self.players[client_id]["name"]
+                self.players[client_id]["name"] = player_name
+                self.log_event(f"{old_name} изменил имя на {player_name}.")
 
     def remove_player(self, client_id: str):
         if client_id in self.players:

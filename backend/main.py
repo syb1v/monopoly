@@ -121,7 +121,7 @@ def end_room(room_id: str, db: Session = Depends(get_db)):
 # ── WebSocket ──────────────────────────────────────────────────────────────────
 
 @app.websocket("/ws/{room_id}/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, room_id: str, client_id: str):
+async def websocket_endpoint(websocket: WebSocket, room_id: str, client_id: str, player_name: str = None):
     # Verify room exists and is active
     db = next(get_db())
     room = db.query(GameRoom).filter_by(id=room_id, status="active").first()
@@ -138,7 +138,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, client_id: str)
 
     # Load (or resume) game
     game = _load_game(room_id, db)
-    game.add_player(client_id)
+    game.add_player(client_id, player_name)
     _save_game(room_id, db)
     await broadcast_state(room_id)
 

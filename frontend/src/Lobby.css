@@ -151,3 +151,31 @@
     font-size: 48px;
   }
 }
+
+.lobby-name-input {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.lobby-name-input input {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  box-sizing: border-box;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.lobby-name-input input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.lobby-name-input input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
