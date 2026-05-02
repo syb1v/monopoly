@@ -224,11 +224,17 @@ function App({ roomId, onLeave }) {
       if (data.type === 'STATE_UPDATE') {
         const newRollId = data.state.last_roll?.id;
         
-        // If this is the FIRST message and we have a last_roll, just save the ID and don't animate
-        if (lastRollIdRef.current === null && newRollId) {
-          lastRollIdRef.current = newRollId;
+        // If this is the FIRST message, initialize positions immediately to prevent jump to GO
+        if (lastRollIdRef.current === null) {
+          lastRollIdRef.current = newRollId || 'initial';
           gameStateRef.current = data.state;
           setGameState(data.state);
+          
+          const initialPositions = {};
+          Object.entries(data.state.players || {}).forEach(([id, p]) => {
+            initialPositions[id] = p.position;
+          });
+          setVisualPositions(initialPositions);
           return;
         }
 
