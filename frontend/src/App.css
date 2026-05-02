@@ -576,10 +576,13 @@ body {
 
 .board-deck h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
   text-transform: uppercase;
   color: #fff;
   text-shadow: 1px 1px 0 #000;
+  text-align: center;
+  padding: 10px;
+  line-height: 1.2;
 }
 
 .deck-chance {
