@@ -312,15 +312,16 @@ export default function MobileApp({
       {/* Game Stats Block */}
       {(() => {
         const totalProps = Object.keys(gameState.properties || {}).length;
-        const rolls = gameState.last_roll ? parseInt(gameState.last_roll.id || 0) : 0;
+        const totalTurns = Object.values(players).reduce((s, p) => s + (p.stats?.turns_played || 0), 0);
+        const totalSpent = Object.values(players).reduce((s, p) => s + (p.stats?.money_spent || 0), 0);
         const richest = Object.entries(players).sort(([,a],[,b]) => b.balance - a.balance)[0];
         return (
           <div className="game-stats-block mob-stats">
             <h4>📊 Статистика</h4>
             <div className="mob-stats-grid">
               <div className="mob-stat-item"><span>⏱ Время</span><strong>{formatTime(gameElapsed)}</strong></div>
-              <div className="mob-stat-item"><span>🎲 Бросков</span><strong>{rolls}</strong></div>
-              <div className="mob-stat-item"><span>🏠 Куплено</span><strong>{totalProps}</strong></div>
+              <div className="mob-stat-item"><span>🎲 Ходов</span><strong>{totalTurns}</strong></div>
+              <div className="mob-stat-item"><span>💸 Слито</span><strong>${totalSpent}</strong></div>
               <div className="mob-stat-item"><span>💰 Богач</span><strong>{richest ? richest[1].name : '—'}</strong></div>
             </div>
           </div>
@@ -447,6 +448,9 @@ export default function MobileApp({
                   houses: clickedCell.propState?.houses || 0,
                   mortgaged: clickedCell.propState?.mortgaged || false
                 }} />
+                {!clickedCell.propState?.owner_id && (
+                  <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
+                )}
               </div>
               
               {clickedCell.propState?.owner_id && (
@@ -466,9 +470,6 @@ export default function MobileApp({
                   </div>
                   <button className="mob-btn secondary small" onClick={() => setClickedCellId(null)}>Закрыть</button>
                 </div>
-              )}
-              {!clickedCell.propState?.owner_id && (
-                <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
               )}
             </motion.div>
           </motion.div>
@@ -492,6 +493,13 @@ export default function MobileApp({
                 </div>
                 <div className="profile-stats">
                   <div className="pstat"><span>🏘️ Участков</span><strong>{pProps.length}</strong></div>
+                  <div className="pstat"><span>💰 Баланс</span><strong>${p.balance}</strong></div>
+                </div>
+                <div className="profile-stats-detailed-mob" style={{ padding: '8px 14px', fontSize: '0.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', opacity: 0.8 }}>
+                  <div>🎲 Ходов: {p.stats?.turns_played || 0}</div>
+                  <div>💸 Слито: ${p.stats?.money_spent || 0}</div>
+                  <div>🃏 Карт: {p.stats?.cards_drawn || 0}</div>
+                  <div>🚓 Штрафы: ${p.stats?.fines_paid || 0}</div>
                 </div>
                 {pProps.length > 0 && (
                   <div className="profile-props">

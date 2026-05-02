@@ -624,12 +624,14 @@ function App({ roomId, onLeave }) {
           {/* Game Stats Block */}
           {(() => {
             const totalProps = Object.keys(gameState.properties || {}).length;
-            const rolls = gameState.last_roll ? parseInt(gameState.last_roll.id || 0) : 0;
             const richest = Object.entries(players).sort(([,a],[,b]) => b.balance - a.balance)[0];
-            const mostProps = Object.entries(players).map(([id]) => ({
-              id,
-              count: Object.values(gameState.properties || {}).filter(p => p.owner_id === id).length
-            })).sort((a,b) => b.count - a.count)[0];
+            
+            // Aggregated stats
+            const totalTurns = Object.values(players).reduce((s, p) => s + (p.stats?.turns_played || 0), 0);
+            const totalSpent = Object.values(players).reduce((s, p) => s + (p.stats?.money_spent || 0), 0);
+            const totalCards = Object.values(players).reduce((s, p) => s + (p.stats?.cards_drawn || 0), 0);
+            const totalFines = Object.values(players).reduce((s, p) => s + (p.stats?.fines_paid || 0), 0);
+
             return (
               <div className="game-stats-block">
                 <h3>📊 Статистика игры</h3>
@@ -639,23 +641,25 @@ function App({ roomId, onLeave }) {
                     <span className="stat-value">{formatTime(gameElapsed)}</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">🎲 Бросков</span>
-                    <span className="stat-value">{rolls}</span>
+                    <span className="stat-label">🎲 Всего ходов</span>
+                    <span className="stat-value">{totalTurns}</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">🏠 Куплено</span>
-                    <span className="stat-value">{totalProps}</span>
+                    <span className="stat-label">💸 Потрачено</span>
+                    <span className="stat-value">${totalSpent}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">🃏 Карт выбито</span>
+                    <span className="stat-value">{totalCards}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">🚓 Штрафов</span>
+                    <span className="stat-value">${totalFines}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">💰 Богаче всех</span>
                     <span className="stat-value">{richest ? `${richest[1].name} ($${richest[1].balance})` : '—'}</span>
                   </div>
-                  {mostProps && mostProps.count > 0 && (
-                    <div className="stat-item">
-                      <span className="stat-label">🏘 Больше всего</span>
-                      <span className="stat-value">{players[mostProps.id]?.name} ({mostProps.count})</span>
-                    </div>
-                  )}
                 </div>
               </div>
             );
@@ -977,6 +981,9 @@ function App({ roomId, onLeave }) {
                   houses: clickedCell.propState?.houses || 0,
                   mortgaged: clickedCell.propState?.mortgaged || false
                 }} />
+                {!clickedCell.propState?.owner_id && (
+                  <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
+                )}
               </div>
 
               {/* Owner info footer */}
@@ -997,9 +1004,6 @@ function App({ roomId, onLeave }) {
                   </div>
                   <button className="mob-btn secondary small" onClick={() => setClickedCellId(null)}>Закрыть</button>
                 </div>
-              )}
-              {!clickedCell.propState?.owner_id && (
-                <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
               )}
             </motion.div>
           </motion.div>
@@ -1047,8 +1051,15 @@ function App({ roomId, onLeave }) {
 
                 <div className="profile-stats">
                   <div className="pstat"><span>💰 Баланс</span><strong>${p.balance}</strong></div>
-                  <div className="pstat"><span>🏠 Участков</span><strong>{pProps.length}</strong></div>
+                  <div className="pstat"><span>🏘️ Участков</span><strong>{pProps.length}</strong></div>
                   <div className="pstat"><span>📊 Активы</span><strong>~${totalAssets}</strong></div>
+                </div>
+
+                <div className="profile-stats-detailed" style={{ padding: '10px 18px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div className="pstat-mini"><span>🎲 Ходов:</span> <strong>{p.stats?.turns_played || 0}</strong></div>
+                  <div className="pstat-mini"><span>💸 Слито:</span> <strong>${p.stats?.money_spent || 0}</strong></div>
+                  <div className="pstat-mini"><span>🃏 Карт:</span> <strong>{p.stats?.cards_drawn || 0}</strong></div>
+                  <div className="pstat-mini"><span>🚓 Штрафы:</span> <strong>${p.stats?.fines_paid || 0}</strong></div>
                 </div>
 
                 {pProps.length > 0 && (
