@@ -932,3 +932,179 @@ body {
 .instructions-content h3:first-child {
   margin-top: 0;
 }
+
+/* ===== Game Stats Block ===== */
+.game-stats-block {
+  margin-top: 16px;
+  padding: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+}
+.game-stats-block h3 {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+.stat-label { color: rgba(255,255,255,0.5); }
+.stat-value { color: #fff; font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
+
+/* ===== Cell Info Popup ===== */
+.cell-info-popup {
+  background: #2a2a35;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 360px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+}
+.cell-popup-stripe {
+  height: 12px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.cell-popup-body {
+  padding: 6px 18px 18px;
+  overflow-y: auto;
+}
+.cell-popup-title {
+  margin: 6px 0 4px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+.cell-popup-type {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+}
+.cell-popup-owner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  flex-wrap: wrap;
+}
+.owner-token {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.owner-mortgaged {
+  color: #e53935;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.cell-popup-rents {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
+.rent-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  padding: 3px 0;
+  color: rgba(255,255,255,0.8);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.rent-row.hotel { color: #f7c948; font-weight: 700; }
+.rent-row.dim { color: rgba(255,255,255,0.4); font-size: 0.78rem; }
+
+/* ===== Player Profile Modal ===== */
+.player-profile-modal {
+  background: #2a2a35;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 380px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.profile-token {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,0.2);
+}
+.profile-header h2 { margin: 0; font-size: 1.15rem; }
+.profile-header > div { flex: 1; }
+.profile-sub { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.profile-stats {
+  display: flex;
+  gap: 0;
+}
+.pstat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  gap: 4px;
+}
+.pstat:last-child { border-right: none; }
+.pstat span { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+.pstat strong { font-size: 1rem; color: #fff; }
+.profile-props {
+  padding: 14px 18px 18px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.profile-props h4 {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.4);
+}
+.profile-prop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.88rem;
+}
+.pprop-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}

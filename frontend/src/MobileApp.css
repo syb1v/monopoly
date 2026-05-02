@@ -434,3 +434,38 @@
   color: #fff;
   font-weight: 600;
 }
+
+/* ===== Mobile Stats ===== */
+.mob-stats {
+  margin-top: 16px;
+  background: rgba(255,255,255,0.03);
+}
+
+.mob-stats h4 {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+}
+
+.mob-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mob-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mob-stat-item span {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.mob-stat-item strong {
+  font-size: 0.9rem;
+  color: #fff;
+}

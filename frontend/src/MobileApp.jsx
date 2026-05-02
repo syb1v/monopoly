@@ -12,6 +12,9 @@ export default function MobileApp({
   handlePlaceBid, handlePassBid, endGame, showErrorToast,
   balanceToasts, visualPositions, logContainerRef,
   instructionsOpen, setInstructionsOpen,
+  clickedCell, clickedCellId, setClickedCellId,
+  selectedPlayerId, setSelectedPlayerId,
+  gameElapsed, formatTime,
 }) {
   const [activeTab, setActiveTab] = useState('board');
   const [selectedPropId, setSelectedPropId] = useState(null);
@@ -108,7 +111,12 @@ export default function MobileApp({
               else directionClass = `cell-${cellIndex}`;
 
               return (
-                <div key={cellIndex} className={`cell ${cellType} ${directionClass}`} style={{ gridArea: getGridArea(cellIndex) }}>
+                <div
+                  key={cellIndex}
+                  className={`cell ${cellType} ${directionClass}`}
+                  style={{ gridArea: getGridArea(cellIndex), cursor: cell.id ? 'pointer' : 'default' }}
+                  onClick={() => cell.id && setClickedCellId(cell.id)}
+                >
                   <span className="cell-number">{cellIndex}</span>
                   <div className="cell-content">
                     {cell.type === 'street' && (
@@ -270,7 +278,9 @@ export default function MobileApp({
       <div className="mob-scoreboard">
         <h4>Игроки</h4>
         {Object.entries(players).map(([id, data], idx) => (
-          <div key={id} className={`mob-player-row ${id === clientId ? 'me' : ''}`}>
+          <div key={id} className={`mob-player-row ${id === clientId ? 'me' : ''}`}
+            onClick={() => setSelectedPlayerId(id)}
+          >
             <div className="mob-player-token" style={{ backgroundColor: `hsl(${idx * 137 % 360}, 70%, 50%)` }} />
             <div className="mob-player-info">
               <span className="mob-player-name">
@@ -298,6 +308,24 @@ export default function MobileApp({
           </div>
         ))}
       </div>
+
+      {/* Game Stats Block */}
+      {(() => {
+        const totalProps = Object.keys(gameState.properties || {}).length;
+        const rolls = gameState.last_roll ? parseInt(gameState.last_roll.id || 0) : 0;
+        const richest = Object.entries(players).sort(([,a],[,b]) => b.balance - a.balance)[0];
+        return (
+          <div className="game-stats-block mob-stats">
+            <h4>📊 Статистика</h4>
+            <div className="mob-stats-grid">
+              <div className="mob-stat-item"><span>⏱ Время</span><strong>{formatTime(gameElapsed)}</strong></div>
+              <div className="mob-stat-item"><span>🎲 Бросков</span><strong>{rolls}</strong></div>
+              <div className="mob-stat-item"><span>🏠 Куплено</span><strong>{totalProps}</strong></div>
+              <div className="mob-stat-item"><span>💰 Богач</span><strong>{richest ? richest[1].name : '—'}</strong></div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 
@@ -407,6 +435,86 @@ export default function MobileApp({
           </button>
         ))}
       </nav>
+
+      {/* ── Cell Info Popup ── */}
+      <AnimatePresence>
+        {clickedCell && (
+          <motion.div className="card-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setClickedCellId(null)} style={{ zIndex: 3000 }}>
+            <motion.div className="cell-info-popup" initial={{ scale: 0.75, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.75, opacity: 0 }} onClick={e => e.stopPropagation()}>
+              {clickedCell.color && <div className="cell-popup-stripe" style={{ backgroundColor: clickedCell.color }} />}
+              <button className="prop-card-close" onClick={() => setClickedCellId(null)} style={{ alignSelf: 'flex-end', margin: '8px' }}>✕</button>
+              <div className="cell-popup-body">
+                <h2 className="cell-popup-title">{clickedCell.name}</h2>
+                <div className="cell-popup-type">
+                  {clickedCell.type === 'street' && `🏠 Улица · ${clickedCell.price ? `$${clickedCell.price}` : ''}`}
+                  {clickedCell.type === 'railroad' && `🚂 Ж/д · $${clickedCell.price}`}
+                  {clickedCell.type === 'utility' && `⚡ Предприятие · $${clickedCell.price}`}
+                  {clickedCell.type === 'tax' && `💸 Налог · -$${clickedCell.price}`}
+                  {clickedCell.type === 'chance' && '❓ Шанс'}
+                  {clickedCell.type === 'chest' && '🎁 Казна'}
+                  {clickedCell.type === 'corner go' && '🔃 Старт'}
+                  {clickedCell.type === 'corner jail' && '🚓 Визит'}
+                  {clickedCell.type === 'corner parking' && '🅿 Стоянка'}
+                  {clickedCell.type === 'corner police' && '👮 Тюрьма!'}
+                </div>
+                {clickedCell.propState?.owner_id && (() => {
+                  const owner = players[clickedCell.propState.owner_id];
+                  const ownerIdx = Object.keys(players).indexOf(clickedCell.propState.owner_id);
+                  return (
+                    <div className="cell-popup-owner">
+                      <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
+                      <span>Владелец: <strong>{clickedCell.propState.owner_id === clientId ? 'Вы' : owner?.name}</strong></span>
+                    </div>
+                  );
+                })()}
+                {clickedCell.type === 'street' && clickedCell.rent && (
+                  <div className="cell-popup-rents">
+                    <div className="rent-row"><span>Аренда</span><span>${clickedCell.rent[0]}</span></div>
+                    <div className="rent-row hotel"><span>🏨 Отель</span><span>${clickedCell.rent[5]}</span></div>
+                    <div className="rent-row dim"><span>Дом</span><span>${clickedCell.houseCost}</span></div>
+                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Player Profile Modal ── */}
+      <AnimatePresence>
+        {selectedPlayerId && (() => {
+          const p = players[selectedPlayerId];
+          if (!p) return null;
+          const pIdx = Object.keys(players).indexOf(selectedPlayerId);
+          const pProps = boardCells.filter(c => gameState.properties?.[c.id]?.owner_id === selectedPlayerId).map(c => ({ ...c, ...gameState.properties[c.id] }));
+          return (
+            <motion.div className="card-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedPlayerId(null)} style={{ zIndex: 3000 }}>
+              <motion.div className="player-profile-modal" initial={{ scale: 0.75, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.75, opacity: 0 }} onClick={e => e.stopPropagation()}>
+                <div className="profile-header">
+                  <div className="profile-token" style={{ backgroundColor: `hsl(${pIdx * 137 % 360}, 70%, 50%)` }} />
+                  <div><h2>{selectedPlayerId === clientId ? 'Вы' : p.name}</h2><span className="profile-sub">{p.balance}$</span></div>
+                  <button className="prop-card-close" onClick={() => setSelectedPlayerId(null)}>✕</button>
+                </div>
+                <div className="profile-stats">
+                  <div className="pstat"><span>🏘️ Участков</span><strong>{pProps.length}</strong></div>
+                </div>
+                {pProps.length > 0 && (
+                  <div className="profile-props">
+                    {pProps.map(pr => (
+                      <div key={pr.id} className="profile-prop-row">
+                        {pr.color && <span className="pprop-color" style={{ backgroundColor: pr.color }} />}
+                        <span style={{ flex: 1 }}>{pr.name}</span>
+                        {pr.houses > 0 && <span>{pr.houses === 5 ? '🏨' : '🏠'.repeat(pr.houses)}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* Instructions modal */}
       <AnimatePresence>

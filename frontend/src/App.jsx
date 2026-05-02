@@ -68,10 +68,39 @@ function App({ roomId, onLeave }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Стейт для карточек
+  // Стейт для карточек из инвентаря
   const [selectedPropId, setSelectedPropId] = useState(null);
+  // Стейт для клика по клетке на доске
+  const [clickedCellId, setClickedCellId] = useState(null);
+  // Стейт для просмотра профиля игрока
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+  // Время старта игры (для статистики)
+  const gameStartRef = useRef(Date.now());
+  const [gameElapsed, setGameElapsed] = useState(0);
 
-  // Вычисляем текущую выбранную карточку динамически, чтобы она всегда имела свежие данные из gameState
+  // Таймер игры
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setGameElapsed(Math.floor((Date.now() - gameStartRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // Данные клетки по которой кликнули
+  const clickedCell = clickedCellId
+    ? {
+        ...boardCells.find(c => c.id === clickedCellId),
+        propState: gameState.properties?.[clickedCellId] || null,
+      }
+    : null;
+
+  // Карточка из инвентаря (клик по имуществу в боковой панели)
   const currentProp = selectedPropId
     ? {
         ...boardCells.find(c => c.id === selectedPropId),
@@ -386,6 +415,13 @@ function App({ roomId, onLeave }) {
         logContainerRef={logContainerRef}
         instructionsOpen={instructionsOpen}
         setInstructionsOpen={setInstructionsOpen}
+        clickedCell={clickedCell}
+        clickedCellId={clickedCellId}
+        setClickedCellId={setClickedCellId}
+        selectedPlayerId={selectedPlayerId}
+        setSelectedPlayerId={setSelectedPlayerId}
+        gameElapsed={gameElapsed}
+        formatTime={formatTime}
       />
     );
   }
@@ -524,7 +560,10 @@ function App({ roomId, onLeave }) {
 
           <div className="players-list">
             {Object.entries(players).map(([id, data], idx) => (
-              <div key={id} className={`player-info ${id === clientId ? 'me' : ''}`}>
+              <div key={id} className={`player-info ${id === clientId ? 'me' : ''}`}
+                onClick={() => setSelectedPlayerId(id)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="player-token" style={{ backgroundColor: `hsl(${idx * 137 % 360}, 70%, 50%)` }}></div>
                 <div style={{ position: 'relative', width: '100%' }}>
                   <strong>
@@ -578,6 +617,45 @@ function App({ roomId, onLeave }) {
                       <span className="inv-hint">ℹ️</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            );
+          })()}
+          {/* Game Stats Block */}
+          {(() => {
+            const totalProps = Object.keys(gameState.properties || {}).length;
+            const rolls = gameState.last_roll ? parseInt(gameState.last_roll.id || 0) : 0;
+            const richest = Object.entries(players).sort(([,a],[,b]) => b.balance - a.balance)[0];
+            const mostProps = Object.entries(players).map(([id]) => ({
+              id,
+              count: Object.values(gameState.properties || {}).filter(p => p.owner_id === id).length
+            })).sort((a,b) => b.count - a.count)[0];
+            return (
+              <div className="game-stats-block">
+                <h3>📊 Статистика игры</h3>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">⏱ Время</span>
+                    <span className="stat-value">{formatTime(gameElapsed)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">🎲 Бросков</span>
+                    <span className="stat-value">{rolls}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">🏠 Куплено</span>
+                    <span className="stat-value">{totalProps}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">💰 Богаче всех</span>
+                    <span className="stat-value">{richest ? `${richest[1].name} ($${richest[1].balance})` : '—'}</span>
+                  </div>
+                  {mostProps && mostProps.count > 0 && (
+                    <div className="stat-item">
+                      <span className="stat-label">🏘 Больше всего</span>
+                      <span className="stat-value">{players[mostProps.id]?.name} ({mostProps.count})</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -813,7 +891,12 @@ function App({ roomId, onLeave }) {
               else directionClass = `cell-${cellIndex}`;
 
               return (
-                <div key={cellIndex} className={`cell ${cellType} ${directionClass}`} style={{ gridArea: getGridArea(cellIndex) }}>
+                <div
+                  key={cellIndex}
+                  className={`cell ${cellType} ${directionClass}`}
+                  style={{ gridArea: getGridArea(cellIndex), cursor: cell.id ? 'pointer' : 'default' }}
+                  onClick={() => cell.id && setClickedCellId(cell.id)}
+                >
                   <span className="cell-number">{cellIndex}</span>
                   <div className="cell-content">
                     {cell.type === 'street' && (
@@ -868,6 +951,157 @@ function App({ roomId, onLeave }) {
           </div>
         </div>
       </div>
+
+      {/* ── Cell Info Popup ── */}
+      <AnimatePresence>
+        {clickedCell && (
+          <motion.div
+            className="card-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setClickedCellId(null)}
+            style={{ zIndex: 2000 }}
+          >
+            <motion.div
+              className="cell-info-popup"
+              initial={{ scale: 0.75, y: 30 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.75, opacity: 0 }}
+              transition={{ type: 'spring', damping: 16 }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Color stripe for streets */}
+              {clickedCell.color && (
+                <div className="cell-popup-stripe" style={{ backgroundColor: clickedCell.color }} />
+              )}
+              <button className="prop-card-close" onClick={() => setClickedCellId(null)} style={{ alignSelf: 'flex-end', margin: '8px 8px 0' }}>✕</button>
+              <div className="cell-popup-body">
+                <h2 className="cell-popup-title">{clickedCell.name}</h2>
+                <div className="cell-popup-type">
+                  {clickedCell.type === 'street' && `🏠 Улица · ${clickedCell.price ? `$${clickedCell.price}` : ''}`}
+                  {clickedCell.type === 'railroad' && `🚂 Железная дорога · $${clickedCell.price}`}
+                  {clickedCell.type === 'utility' && `⚡ Предприятие · $${clickedCell.price}`}
+                  {clickedCell.type === 'tax' && `💸 Налог · -$${clickedCell.price}`}
+                  {clickedCell.type === 'chance' && '❓ Карточка Шанс'}
+                  {clickedCell.type === 'chest' && '🎁 Общественная Казна'}
+                  {clickedCell.type === 'corner go' && '🔃 Старт — проходящие получают $200'}
+                  {clickedCell.type === 'corner jail' && '🚓 Визит в Тюрьму'}
+                  {clickedCell.type === 'corner parking' && '🅿 Бесплатная Стоянка'}
+                  {clickedCell.type === 'corner police' && '👮 Отправляйтесь в Тюрьму!'}
+                </div>
+
+                {/* Owner info */}
+                {clickedCell.propState?.owner_id && (() => {
+                  const ownerId = clickedCell.propState.owner_id;
+                  const owner = players[ownerId];
+                  const ownerIdx = Object.keys(players).indexOf(ownerId);
+                  return (
+                    <div className="cell-popup-owner">
+                      <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
+                      <span>Владелец: <strong>{ownerId === clientId ? 'Вы' : owner?.name}</strong></span>
+                      {clickedCell.propState.mortgaged && <span className="owner-mortgaged">· ЗАЛОЖЕНО</span>}
+                      {clickedCell.propState.houses > 0 && (
+                        <span>· {clickedCell.propState.houses === 5 ? '🏨 Отель' : `🏠 × ${clickedCell.propState.houses}`}</span>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Rent table for streets */}
+                {clickedCell.type === 'street' && clickedCell.rent && (
+                  <div className="cell-popup-rents">
+                    <div className="rent-row"><span>Аренда</span><span>${clickedCell.rent[0]}</span></div>
+                    <div className="rent-row"><span>× 2 (монополия)</span><span>${clickedCell.rent[0] * 2}</span></div>
+                    <div className="rent-row"><span>1 дом</span><span>${clickedCell.rent[1]}</span></div>
+                    <div className="rent-row"><span>2 дома</span><span>${clickedCell.rent[2]}</span></div>
+                    <div className="rent-row"><span>3 дома</span><span>${clickedCell.rent[3]}</span></div>
+                    <div className="rent-row"><span>4 дома</span><span>${clickedCell.rent[4]}</span></div>
+                    <div className="rent-row hotel"><span>🏨 Отель</span><span>${clickedCell.rent[5]}</span></div>
+                    <div className="rent-row dim"><span>Стоимость дома</span><span>${clickedCell.houseCost}</span></div>
+                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
+                  </div>
+                )}
+
+                {/* Railroad rents */}
+                {clickedCell.type === 'railroad' && clickedCell.rent && (
+                  <div className="cell-popup-rents">
+                    {clickedCell.rent.map((r, i) => (
+                      <div key={i} className="rent-row"><span>{i + 1} ж/д</span><span>${r}</span></div>
+                    ))}
+                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Player Profile Modal ── */}
+      <AnimatePresence>
+        {selectedPlayerId && (() => {
+          const p = players[selectedPlayerId];
+          if (!p) return null;
+          const pIdx = Object.keys(players).indexOf(selectedPlayerId);
+          const pProps = boardCells.filter(c => gameState.properties?.[c.id]?.owner_id === selectedPlayerId).map(c => ({
+            ...c, ...gameState.properties[c.id]
+          }));
+          const totalAssets = p.balance + pProps.reduce((sum, c) => sum + (c.price || 0), 0);
+          return (
+            <motion.div
+              className="card-modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedPlayerId(null)}
+              style={{ zIndex: 2000 }}
+            >
+              <motion.div
+                className="player-profile-modal"
+                initial={{ scale: 0.75, y: 30 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.75, opacity: 0 }}
+                transition={{ type: 'spring', damping: 16 }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="profile-header">
+                  <div className="profile-token" style={{ backgroundColor: `hsl(${pIdx * 137 % 360}, 70%, 50%)` }} />
+                  <div>
+                    <h2>{selectedPlayerId === clientId ? 'Вы' : p.name}</h2>
+                    <span className="profile-sub">
+                      {selectedPlayerId === gameState.current_turn_player_id ? '🎲 Ходит' : 'Ожидает'}
+                      {(p.jail_turns || 0) > 0 && ' · 🚓 Тюрьма'}
+                    </span>
+                  </div>
+                  <button className="prop-card-close" onClick={() => setSelectedPlayerId(null)}>✕</button>
+                </div>
+
+                <div className="profile-stats">
+                  <div className="pstat"><span>💰 Баланс</span><strong>${p.balance}</strong></div>
+                  <div className="pstat"><span>🏠 Участков</span><strong>{pProps.length}</strong></div>
+                  <div className="pstat"><span>📊 Активы</span><strong>~${totalAssets}</strong></div>
+                </div>
+
+                {pProps.length > 0 && (
+                  <div className="profile-props">
+                    <h4>Недвижимость</h4>
+                    {pProps.map(pr => (
+                      <div key={pr.id} className="profile-prop-row">
+                        {pr.color && <span className="pprop-color" style={{ backgroundColor: pr.color }} />}
+                        {pr.type === 'railroad' && <span className="pprop-color" style={{ backgroundColor: '#333' }}>🚂</span>}
+                        {pr.type === 'utility' && <span className="pprop-color" style={{ backgroundColor: '#555' }}>{pr.id === 'prop_12' ? '💡' : '🚰'}</span>}
+                        <span style={{ flex: 1, textDecoration: pr.mortgaged ? 'line-through' : 'none', opacity: pr.mortgaged ? 0.5 : 1 }}>{pr.name}</span>
+                        {pr.houses > 0 && <span>{pr.houses === 5 ? '🏨' : '🏠'.repeat(pr.houses)}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
