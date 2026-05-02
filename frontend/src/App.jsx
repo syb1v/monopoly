@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MonopolyCard from './MonopolyCard';
 import Dice3D from './Dice3D';
+import MobileApp from './MobileApp';
 import { propertiesData, boardCells } from './data/cards';
 import './App.css';
 
@@ -33,12 +34,14 @@ function App({ roomId, onLeave }) {
     setTimeout(() => setErrorToast(null), 3500);
   };
   const [boardScale, setBoardScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   // Resize handler for scaling board
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
+      setIsMobile(width < 768);
       let newScale = 1;
       
       if (width <= 1024) {
@@ -357,6 +360,37 @@ function App({ roomId, onLeave }) {
   const players = gameState.players || {};
   const lastRoll = gameState.last_roll;
 
+  // ─── Mobile layout ────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <MobileApp
+        gameState={gameState}
+        setGameState={setGameState}
+        clientId={clientId}
+        ws={ws}
+        isRolling={isRolling}
+        rollResult={rollResult}
+        rollDice={rollDice}
+        endTurn={endTurn}
+        handleBuy={handleBuy}
+        handleDeclineBuy={handleDeclineBuy}
+        handleMortgage={handleMortgage}
+        handleUnmortgage={handleUnmortgage}
+        handleBuildHouse={handleBuildHouse}
+        handlePlaceBid={handlePlaceBid}
+        handlePassBid={handlePassBid}
+        endGame={endGame}
+        showErrorToast={showErrorToast}
+        balanceToasts={balanceToasts}
+        visualPositions={visualPositions}
+        logContainerRef={logContainerRef}
+        instructionsOpen={instructionsOpen}
+        setInstructionsOpen={setInstructionsOpen}
+      />
+    );
+  }
+
+  // ─── Desktop layout ───────────────────────────────────────────────────────
   return (
     <div className="app-global-wrapper">
       <div className="container">
