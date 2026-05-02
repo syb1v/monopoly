@@ -7,7 +7,7 @@ export default function Lobby({ onJoin }) {
 
   const fetchRooms = async () => {
     try {
-      const res = await fetch('http://localhost:8000/rooms');
+      const res = await fetch(`http://${window.location.hostname}:8000/rooms`);
       const data = await res.json();
       setRooms(data);
     } catch (_) {}
@@ -22,7 +22,7 @@ export default function Lobby({ onJoin }) {
   const handleCreate = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/rooms', { method: 'POST' });
+      const res = await fetch(`http://${window.location.hostname}:8000/rooms`, { method: 'POST' });
       const room = await res.json();
       onJoin(room.id);
     } catch (_) {

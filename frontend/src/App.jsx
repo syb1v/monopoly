@@ -183,7 +183,7 @@ function App({ roomId, onLeave }) {
   };
 
   useEffect(() => {
-    ws.current = new WebSocket(`ws://localhost:8000/ws/${roomId}/${clientId}`);
+    ws.current = new WebSocket(`ws://${window.location.hostname}:8000/ws/${roomId}/${clientId}`);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -328,7 +328,7 @@ function App({ roomId, onLeave }) {
   const endGame = async () => {
     if (!confirm('Завершить игру? Весь прогресс будет утерян.')) return;
     try {
-      await fetch(`http://localhost:8000/rooms/${roomId}`, { method: 'DELETE' });
+      await fetch(`http://${window.location.hostname}:8000/rooms/${roomId}`, { method: 'DELETE' });
     } catch (_) {}
     localStorage.removeItem('monopoly_room_id');
     if (ws.current) ws.current.close();

@@ -19,7 +19,7 @@ def main():
     venv_python = os.path.join(root_dir, ".venv", "bin", "python")
     python_exec = venv_python if os.path.exists(venv_python) else sys.executable
     backend_process = subprocess.Popen(
-        [python_exec, "-m", "uvicorn", "main:app", "--reload"],
+        [python_exec, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"],
         cwd=backend_dir,
     )
 
@@ -31,7 +31,7 @@ def main():
     # shell=True нужен на Windows для корректного запуска npm команд
     is_windows = sys.platform.startswith('win')
     frontend_process = subprocess.Popen(
-        ["npm", "run", "dev"],
+        ["npm", "run", "dev", "--", "--host"],
         cwd=frontend_dir,
         shell=is_windows
     )
