@@ -76,9 +76,6 @@ export default function MobileApp({
               <div className="board-deck deck-chance"><h3>Шанс</h3></div>
               <div className="board-deck deck-chest"><h3>Общественная Казна</h3></div>
               <h2 className="logo-text">MONOPOLY</h2>
-              {lastRoll && (
-                <Dice3D dice1={lastRoll.dice1} dice2={lastRoll.dice2} isRolling={isRolling} />
-              )}
               <AnimatePresence>
                 {rollResult && (
                   <motion.div
@@ -419,7 +416,17 @@ export default function MobileApp({
       {/* Content */}
       <div className="mob-content">
         <AnimatePresence mode="wait">
-          {activeTab === 'board' && <motion.div key="board" className="mob-tab-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><BoardTab /></motion.div>}
+          {activeTab === 'board' && (
+            <motion.div key="board" className="mob-tab-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <BoardTab />
+              {/* Dice overlay — outside scroll to prevent gesture blocking */}
+              {lastRoll && (
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 1000 }}>
+                  <Dice3D key={lastRoll.id} dice1={lastRoll.dice1} dice2={lastRoll.dice2} isRolling={isRolling} />
+                </div>
+              )}
+            </motion.div>
+          )}
           {activeTab === 'action' && <motion.div key="action" className="mob-tab-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ActionsTab /></motion.div>}
           {activeTab === 'props' && <motion.div key="props" className="mob-tab-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><PropertiesTab /></motion.div>}
           {activeTab === 'log' && <motion.div key="log" className="mob-tab-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><LogTab /></motion.div>}

@@ -114,3 +114,20 @@
   perspective: none;
 }
 /* We MUST keep transform-style: preserve-3d on the cube so the faces aren't flattened before rotation */
+
+/* Mobile optimization: make dice smaller and ensure they don't block scrolling */
+@media (max-width: 768px) {
+  .dice-scene {
+    gap: 10px;
+    transform: translate(-50%, -50%) scale(0.85); /* Slightly smaller dice */
+    pointer-events: none !important;
+  }
+  
+  .die-wrapper {
+    pointer-events: none !important;
+  }
+
+  .die-cube {
+    pointer-events: none !important;
+  }
+}

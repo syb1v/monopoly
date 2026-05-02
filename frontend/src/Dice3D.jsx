@@ -37,8 +37,11 @@ export default function Dice3D({ dice1, dice2, isRolling, onRollComplete }) {
   const [spinDur2, setSpinDur2] = useState(0.4);
   const timerRef = useRef(null);
 
+  const isRollingRef = useRef(false);
+
   useEffect(() => {
-    if (isRolling) {
+    if (isRolling && !isRollingRef.current) {
+      isRollingRef.current = true;
       // Generate independent random values for each die
       const sd1 = 1000 + Math.floor(Math.random() * 800); // 1000–1800ms slide
       const sd2 = 1000 + Math.floor(Math.random() * 800);
@@ -75,15 +78,18 @@ export default function Dice3D({ dice1, dice2, isRolling, onRollComplete }) {
         // After the 1.6s CSS transition completes, go flat
         setTimeout(() => {
           setPhase('flat');
+          isRollingRef.current = false;
           if (onRollComplete) onRollComplete();
         }, 600);
       }, 900);
 
-    } else if (phase === 'idle' && dice1) {
-      // Initial load — just show flat result immediately
-      setLandTransform1(FACE_ROTATIONS[dice1] || FACE_ROTATIONS[1]);
-      setLandTransform2(FACE_ROTATIONS[dice2] || FACE_ROTATIONS[1]);
-      setPhase('flat');
+    } else if (!isRolling) {
+      isRollingRef.current = false;
+      if (phase === 'idle' && dice1) {
+        setLandTransform1(FACE_ROTATIONS[dice1] || FACE_ROTATIONS[1]);
+        setLandTransform2(FACE_ROTATIONS[dice2] || FACE_ROTATIONS[1]);
+        setPhase('flat');
+      }
     }
 
     return () => {
