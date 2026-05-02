@@ -480,6 +480,7 @@
 }
 
 .popup-card-wrapper {
+  position: relative; /* Fix for floating close button */
   padding: 10px;
   background: rgba(0,0,0,0.3);
   border-radius: 12px;

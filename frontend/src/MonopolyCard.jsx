@@ -107,7 +107,9 @@ export default function MonopolyCard({ property }) {
         <div className="card-header-icon">💎</div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
-          <p className="special-desc">Заплатите налог государству!</p>
+          <p className="special-desc">
+            {property.id === 'prop_4' ? 'Подоходный налог. Оплатите фиксированную сумму в банк.' : 'Сверхналог на роскошь. Оплатите в банк.'}
+          </p>
           <p className="special-value">-${property.price}</p>
         </div>
       </div>
@@ -121,7 +123,11 @@ export default function MonopolyCard({ property }) {
         <div className="card-header-icon">{isChance ? '❓' : '🎁'}</div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
-          <p className="special-desc">Тяните карточку из колоды!</p>
+          <p className="special-desc">
+            {isChance 
+              ? 'Возьмите верхнюю карточку из колоды "ШАНС" и следуйте указаниям.' 
+              : 'Возьмите верхнюю карточку из колоды "ОБЩЕСТВЕННАЯ КАЗНА" и следуйте указаниям.'}
+          </p>
         </div>
       </div>
     );
@@ -129,15 +135,25 @@ export default function MonopolyCard({ property }) {
 
   if (property.type?.includes('corner')) {
     let icon = '🏁';
-    if (property.type.includes('jail')) icon = '🚓';
-    if (property.type.includes('parking')) icon = '🅿';
-    if (property.type.includes('police')) icon = '👮';
+    let desc = 'Проходя через эту клетку, вы получаете зарплату $200.';
+    if (property.type.includes('jail')) {
+      icon = '🚓';
+      desc = 'Вы просто посещаете тюрьму. Если вы попали сюда по указанию, оставайтесь здесь до выхода.';
+    }
+    if (property.type.includes('parking')) {
+      icon = '🅿';
+      desc = 'Бесплатная стоянка. Отдыхайте до следующего хода. Никаких штрафов или выплат.';
+    }
+    if (property.type.includes('police')) {
+      icon = '👮';
+      desc = 'ОТПРАВЛЯЙТЕСЬ В ТЮРЬМУ! Переместите свою фишку на клетку Тюрьма. Не проходите через СТАРТ, не получайте $200.';
+    }
     return (
       <div className="monopoly-card special-cell corner">
         <div className="card-header-icon">{icon}</div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
-          <p className="special-desc">Особая клетка на поле.</p>
+          <p className="special-desc">{desc}</p>
         </div>
       </div>
     );
