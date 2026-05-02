@@ -101,5 +101,50 @@ export default function MonopolyCard({ property }) {
     );
   }
 
-  return <div className="monopoly-card">Специальная карточка</div>;
+  if (property.type === 'tax') {
+    return (
+      <div className="monopoly-card special-cell tax">
+        <div className="card-header-icon">💎</div>
+        <h2 className="card-title-special">{property.name}</h2>
+        <div className="card-body">
+          <p className="special-desc">Заплатите налог государству!</p>
+          <p className="special-value">-${property.price}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (property.type === 'chance' || property.type === 'chest') {
+    const isChance = property.type === 'chance';
+    return (
+      <div className={`monopoly-card special-cell ${property.type}`}>
+        <div className="card-header-icon">{isChance ? '❓' : '🎁'}</div>
+        <h2 className="card-title-special">{property.name}</h2>
+        <div className="card-body">
+          <p className="special-desc">Тяните карточку из колоды!</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (property.type?.includes('corner')) {
+    let icon = '🏁';
+    if (property.type.includes('jail')) icon = '🚓';
+    if (property.type.includes('parking')) icon = '🅿';
+    if (property.type.includes('police')) icon = '👮';
+    return (
+      <div className="monopoly-card special-cell corner">
+        <div className="card-header-icon">{icon}</div>
+        <h2 className="card-title-special">{property.name}</h2>
+        <div className="card-body">
+          <p className="special-desc">Особая клетка на поле.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <div className="monopoly-card special-cell">
+    <div className="card-header-icon">📍</div>
+    <h2 className="card-title-special">{property.name}</h2>
+  </div>;
 }

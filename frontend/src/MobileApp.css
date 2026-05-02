@@ -469,3 +469,49 @@
   font-size: 0.9rem;
   color: #fff;
 }
+
+/* Cell Popup Card Mode Mobile */
+.cell-info-popup.card-mode {
+  background: transparent;
+  box-shadow: none;
+  max-width: none;
+  width: auto;
+  overflow: visible;
+}
+
+.popup-card-wrapper {
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.cell-popup-footer {
+  margin-top: 15px;
+  background: #2a2a35;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  align-items: center;
+}
+
+.prop-card-close.floating {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: #ff4d4f;
+  color: white;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 10;
+}

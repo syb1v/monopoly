@@ -964,75 +964,43 @@ function App({ roomId, onLeave }) {
             style={{ zIndex: 2000 }}
           >
             <motion.div
-              className="cell-info-popup"
+              className="cell-info-popup card-mode"
               initial={{ scale: 0.75, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.75, opacity: 0 }}
               transition={{ type: 'spring', damping: 16 }}
               onClick={e => e.stopPropagation()}
             >
-              {/* Color stripe for streets */}
-              {clickedCell.color && (
-                <div className="cell-popup-stripe" style={{ backgroundColor: clickedCell.color }} />
-              )}
-              <button className="prop-card-close" onClick={() => setClickedCellId(null)} style={{ alignSelf: 'flex-end', margin: '8px 8px 0' }}>✕</button>
-              <div className="cell-popup-body">
-                <h2 className="cell-popup-title">{clickedCell.name}</h2>
-                <div className="cell-popup-type">
-                  {clickedCell.type === 'street' && `🏠 Улица · ${clickedCell.price ? `$${clickedCell.price}` : ''}`}
-                  {clickedCell.type === 'railroad' && `🚂 Железная дорога · $${clickedCell.price}`}
-                  {clickedCell.type === 'utility' && `⚡ Предприятие · $${clickedCell.price}`}
-                  {clickedCell.type === 'tax' && `💸 Налог · -$${clickedCell.price}`}
-                  {clickedCell.type === 'chance' && '❓ Карточка Шанс'}
-                  {clickedCell.type === 'chest' && '🎁 Общественная Казна'}
-                  {clickedCell.type === 'corner go' && '🔃 Старт — проходящие получают $200'}
-                  {clickedCell.type === 'corner jail' && '🚓 Визит в Тюрьму'}
-                  {clickedCell.type === 'corner parking' && '🅿 Бесплатная Стоянка'}
-                  {clickedCell.type === 'corner police' && '👮 Отправляйтесь в Тюрьму!'}
-                </div>
-
-                {/* Owner info */}
-                {clickedCell.propState?.owner_id && (() => {
-                  const ownerId = clickedCell.propState.owner_id;
-                  const owner = players[ownerId];
-                  const ownerIdx = Object.keys(players).indexOf(ownerId);
-                  return (
-                    <div className="cell-popup-owner">
-                      <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
-                      <span>Владелец: <strong>{ownerId === clientId ? 'Вы' : owner?.name}</strong></span>
-                      {clickedCell.propState.mortgaged && <span className="owner-mortgaged">· ЗАЛОЖЕНО</span>}
-                      {clickedCell.propState.houses > 0 && (
-                        <span>· {clickedCell.propState.houses === 5 ? '🏨 Отель' : `🏠 × ${clickedCell.propState.houses}`}</span>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                {/* Rent table for streets */}
-                {clickedCell.type === 'street' && clickedCell.rent && (
-                  <div className="cell-popup-rents">
-                    <div className="rent-row"><span>Аренда</span><span>${clickedCell.rent[0]}</span></div>
-                    <div className="rent-row"><span>× 2 (монополия)</span><span>${clickedCell.rent[0] * 2}</span></div>
-                    <div className="rent-row"><span>1 дом</span><span>${clickedCell.rent[1]}</span></div>
-                    <div className="rent-row"><span>2 дома</span><span>${clickedCell.rent[2]}</span></div>
-                    <div className="rent-row"><span>3 дома</span><span>${clickedCell.rent[3]}</span></div>
-                    <div className="rent-row"><span>4 дома</span><span>${clickedCell.rent[4]}</span></div>
-                    <div className="rent-row hotel"><span>🏨 Отель</span><span>${clickedCell.rent[5]}</span></div>
-                    <div className="rent-row dim"><span>Стоимость дома</span><span>${clickedCell.houseCost}</span></div>
-                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
-                  </div>
-                )}
-
-                {/* Railroad rents */}
-                {clickedCell.type === 'railroad' && clickedCell.rent && (
-                  <div className="cell-popup-rents">
-                    {clickedCell.rent.map((r, i) => (
-                      <div key={i} className="rent-row"><span>{i + 1} ж/д</span><span>${r}</span></div>
-                    ))}
-                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
-                  </div>
-                )}
+              <div className="popup-card-wrapper">
+                <MonopolyCard property={{
+                  ...clickedCell,
+                  houses: clickedCell.propState?.houses || 0,
+                  mortgaged: clickedCell.propState?.mortgaged || false
+                }} />
               </div>
+
+              {/* Owner info footer */}
+              {clickedCell.propState?.owner_id && (
+                <div className="cell-popup-footer">
+                  <div className="cell-popup-owner">
+                    {(() => {
+                      const ownerId = clickedCell.propState.owner_id;
+                      const owner = players[ownerId];
+                      const ownerIdx = Object.keys(players).indexOf(ownerId);
+                      return (
+                        <>
+                          <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
+                          <span>Владелец: <strong>{ownerId === clientId ? 'Вы' : owner?.name}</strong></span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <button className="mob-btn secondary small" onClick={() => setClickedCellId(null)}>Закрыть</button>
+                </div>
+              )}
+              {!clickedCell.propState?.owner_id && (
+                <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
+              )}
             </motion.div>
           </motion.div>
         )}

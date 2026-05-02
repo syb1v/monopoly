@@ -440,42 +440,36 @@ export default function MobileApp({
       <AnimatePresence>
         {clickedCell && (
           <motion.div className="card-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setClickedCellId(null)} style={{ zIndex: 3000 }}>
-            <motion.div className="cell-info-popup" initial={{ scale: 0.75, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.75, opacity: 0 }} onClick={e => e.stopPropagation()}>
-              {clickedCell.color && <div className="cell-popup-stripe" style={{ backgroundColor: clickedCell.color }} />}
-              <button className="prop-card-close" onClick={() => setClickedCellId(null)} style={{ alignSelf: 'flex-end', margin: '8px' }}>✕</button>
-              <div className="cell-popup-body">
-                <h2 className="cell-popup-title">{clickedCell.name}</h2>
-                <div className="cell-popup-type">
-                  {clickedCell.type === 'street' && `🏠 Улица · ${clickedCell.price ? `$${clickedCell.price}` : ''}`}
-                  {clickedCell.type === 'railroad' && `🚂 Ж/д · $${clickedCell.price}`}
-                  {clickedCell.type === 'utility' && `⚡ Предприятие · $${clickedCell.price}`}
-                  {clickedCell.type === 'tax' && `💸 Налог · -$${clickedCell.price}`}
-                  {clickedCell.type === 'chance' && '❓ Шанс'}
-                  {clickedCell.type === 'chest' && '🎁 Казна'}
-                  {clickedCell.type === 'corner go' && '🔃 Старт'}
-                  {clickedCell.type === 'corner jail' && '🚓 Визит'}
-                  {clickedCell.type === 'corner parking' && '🅿 Стоянка'}
-                  {clickedCell.type === 'corner police' && '👮 Тюрьма!'}
-                </div>
-                {clickedCell.propState?.owner_id && (() => {
-                  const owner = players[clickedCell.propState.owner_id];
-                  const ownerIdx = Object.keys(players).indexOf(clickedCell.propState.owner_id);
-                  return (
-                    <div className="cell-popup-owner">
-                      <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
-                      <span>Владелец: <strong>{clickedCell.propState.owner_id === clientId ? 'Вы' : owner?.name}</strong></span>
-                    </div>
-                  );
-                })()}
-                {clickedCell.type === 'street' && clickedCell.rent && (
-                  <div className="cell-popup-rents">
-                    <div className="rent-row"><span>Аренда</span><span>${clickedCell.rent[0]}</span></div>
-                    <div className="rent-row hotel"><span>🏨 Отель</span><span>${clickedCell.rent[5]}</span></div>
-                    <div className="rent-row dim"><span>Дом</span><span>${clickedCell.houseCost}</span></div>
-                    <div className="rent-row dim"><span>Залог</span><span>${clickedCell.mortgageValue}</span></div>
-                  </div>
-                )}
+            <motion.div className="cell-info-popup card-mode" initial={{ scale: 0.75, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.75, opacity: 0 }} onClick={e => e.stopPropagation()}>
+              <div className="popup-card-wrapper">
+                <MonopolyCard property={{
+                  ...clickedCell,
+                  houses: clickedCell.propState?.houses || 0,
+                  mortgaged: clickedCell.propState?.mortgaged || false
+                }} />
               </div>
+              
+              {clickedCell.propState?.owner_id && (
+                <div className="cell-popup-footer">
+                  <div className="cell-popup-owner">
+                    {(() => {
+                      const ownerId = clickedCell.propState.owner_id;
+                      const owner = players[ownerId];
+                      const ownerIdx = Object.keys(players).indexOf(ownerId);
+                      return (
+                        <>
+                          <div className="owner-token" style={{ backgroundColor: `hsl(${ownerIdx * 137 % 360}, 70%, 50%)` }} />
+                          <span>Владелец: <strong>{ownerId === clientId ? 'Вы' : owner?.name}</strong></span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <button className="mob-btn secondary small" onClick={() => setClickedCellId(null)}>Закрыть</button>
+                </div>
+              )}
+              {!clickedCell.propState?.owner_id && (
+                <button className="prop-card-close floating" onClick={() => setClickedCellId(null)}>✕</button>
+              )}
             </motion.div>
           </motion.div>
         )}
