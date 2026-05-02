@@ -6,7 +6,7 @@ import MobileApp from './MobileApp';
 import { boardCells } from './data/cards';
 import { 
   IconTrain, IconLightbulb, IconWater, IconChance, IconChest, 
-  IconTax, IconHouse, IconHotel 
+  IconTax, IconHouse, IconHotel, IconFlag, IconJail, IconParking, IconPolice
 } from './Icons';
 import './App.css';
 
@@ -714,6 +714,31 @@ function App({ roomId, onLeave }) {
                 <h3>Общественная Казна</h3>
               </div>
 
+              {/* Center board balance toasts */}
+              <div className="board-center-toasts" style={{ pointerEvents: 'none' }}>
+                <AnimatePresence>
+                  {Object.entries(balanceToasts).flatMap(([id, toasts]) =>
+                    toasts.map(toast => {
+                      const idx = Object.keys(players).indexOf(id);
+                      return (
+                        <motion.div
+                          key={toast.id}
+                          className={`center-toast ${toast.amount > 0 ? 'positive' : 'negative'}`}
+                          initial={{ opacity: 0, y: 20, scale: 0.6 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -60, scale: 0.8 }}
+                          transition={{ duration: 0.5, type: 'spring', damping: 12 }}
+                          style={{ '--idx': idx }}
+                        >
+                          <span className="center-toast-name">{players[id]?.name || id.substring(0,4)}</span>
+                          <span className="center-toast-amount">{toast.amount > 0 ? '+' : ''}{toast.amount}$</span>
+                        </motion.div>
+                      );
+                    })
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Модал: карточка из инвентаря */}
               <AnimatePresence>
                 {currentProp && (
@@ -928,10 +953,13 @@ function App({ roomId, onLeave }) {
                   <span className="cell-number">{cellIndex}</span>
                   <div className="cell-content">
                     {cell.type === 'street' && (
-                      <div className="property-header" style={{ backgroundColor: cell.color, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <div className="property-header" style={{ backgroundColor: cell.color, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1px' }}>
                         {gameState.properties && gameState.properties[cell.id]?.houses > 0 && (
-                          <span style={{ fontSize: '8px' }}>
-                            {gameState.properties[cell.id].houses === 5 ? '🏨' : '🏠'.repeat(gameState.properties[cell.id].houses)}
+                          <span style={{ display: 'flex', gap: '1px', alignItems: 'center' }}>
+                            {gameState.properties[cell.id].houses === 5
+                              ? <IconHotel size={10}/>
+                              : Array.from({ length: gameState.properties[cell.id].houses }).map((_, i) => <IconHouse key={i} size={10}/>)
+                            }
                           </span>
                         )}
                       </div>
@@ -943,12 +971,16 @@ function App({ roomId, onLeave }) {
                       </div>
                     )}
                     
-                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={18}/></div>}
-                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={18}/></div>}
-                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={18}/></div>}
-                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={18} color="#f57c00"/></div>}
-                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={18} color="#1976d2"/></div>}
-                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={18} color="#e53935"/></div>}
+                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={24}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={24}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={24}/></div>}
+                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={24}/></div>}
+                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={24}/></div>}
+                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={24}/></div>}
+                    {cell.type === 'corner go' && <div className="cell-icon corner-icon"><IconFlag size={40}/></div>}
+                    {cell.type === 'corner jail' && <div className="cell-icon corner-icon"><IconJail size={40}/></div>}
+                    {cell.type === 'corner parking' && <div className="cell-icon corner-icon"><IconParking size={40}/></div>}
+                    {cell.type === 'corner police' && <div className="cell-icon corner-icon"><IconPolice size={40}/></div>}
                     
                     <div className="cell-name">{cell.name}</div>
                     

@@ -6,7 +6,8 @@ import { boardCells } from './data/cards';
 import { 
   IconTrain, IconLightbulb, IconWater, IconChance, IconChest, 
   IconTax, IconMap, IconGamepad, IconProperties, IconLog,
-  IconBook, IconStop
+  IconBook, IconStop, IconFlag, IconJail, IconParking, IconPolice,
+  IconHouse, IconHotel
 } from './Icons';
 import './MobileApp.css';
 
@@ -95,6 +96,27 @@ export default function MobileApp({
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Center board balance toasts */}
+              <div className="board-center-toasts" style={{ pointerEvents: 'none' }}>
+                <AnimatePresence>
+                  {Object.entries(balanceToasts || {}).flatMap(([id, toasts]) =>
+                    toasts.map(toast => (
+                      <motion.div
+                        key={toast.id}
+                        className={`center-toast ${toast.amount > 0 ? 'positive' : 'negative'}`}
+                        initial={{ opacity: 0, y: 20, scale: 0.6 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -50, scale: 0.8 }}
+                        transition={{ duration: 0.45, type: 'spring', damping: 12 }}
+                      >
+                        <span className="center-toast-name">{gameState.players?.[id]?.name || id.substring(0,4)}</span>
+                        <span className="center-toast-amount">{toast.amount > 0 ? '+' : ''}{toast.amount}$</span>
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {boardCells.map((cell, cellIndex) => {
@@ -133,12 +155,16 @@ export default function MobileApp({
                     {gameState.properties?.[cell.id]?.mortgaged && (
                       <div className="mortgage-overlay">ЗАЛОГ</div>
                     )}
-                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={18}/></div>}
-                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={18}/></div>}
-                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={18}/></div>}
-                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={18} color="#f57c00"/></div>}
-                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={18} color="#1976d2"/></div>}
-                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={18} color="#e53935"/></div>}
+                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={24}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={24}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={24}/></div>}
+                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={24}/></div>}
+                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={24}/></div>}
+                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={24}/></div>}
+                    {cell.type === 'corner go' && <div className="cell-icon corner-icon"><IconFlag size={32}/></div>}
+                    {cell.type === 'corner jail' && <div className="cell-icon corner-icon"><IconJail size={32}/></div>}
+                    {cell.type === 'corner parking' && <div className="cell-icon corner-icon"><IconParking size={32}/></div>}
+                    {cell.type === 'corner police' && <div className="cell-icon corner-icon"><IconPolice size={32}/></div>}
                     {cell.price && <div className="cell-price">${cell.price}</div>}
                   </div>
                   <div className="tokens-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

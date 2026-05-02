@@ -1,122 +1,146 @@
 import React from 'react';
 
 // Railroad / Train
-export const IconTrain = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="4" y="3" width="16" height="16" rx="2" ry="2"/>
-    <path d="M4 11h16"/>
-    <path d="M12 3v8"/>
-    <path d="M8 19l-2 3"/>
-    <path d="M16 19l2 3"/>
-    <path d="M8 15h0"/>
-    <path d="M16 15h0"/>
+export const IconTrain = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#455A64" d="M10 50h44v4H10z"/>
+    <path fill="#263238" d="M22 24h24v18H22z"/>
+    <path fill="#D32F2F" d="M14 42h40v8H14z"/>
+    <circle cx="24" cy="46" r="6" fill="#FBC02D"/>
+    <circle cx="44" cy="46" r="6" fill="#FBC02D"/>
+    <circle cx="24" cy="46" r="4" fill="#37474F"/>
+    <circle cx="44" cy="46" r="4" fill="#37474F"/>
+    <path fill="#D32F2F" d="M38 12h8v12h-8z"/>
+    <path fill="#263238" d="M36 10h12v4H36z"/>
+    <path fill="#90A4AE" d="M46 6a4 4 0 1 0 8 0 4 4 0 1 0-8 0zm6-4a3 3 0 1 0 6 0 3 3 0 1 0-6 0z"/>
+    <path fill="#CFD8DC" d="M26 28h4v8h-4zm10 0h4v8h-4z"/>
+    <path fill="#FBC02D" d="M8 44l6-6v10l-6-4z"/>
   </svg>
 );
 
 // Electric / Lightbulb
-export const IconLightbulb = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/>
-    <path d="M9 18h6"/>
-    <path d="M10 22h4"/>
+export const IconLightbulb = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <circle cx="32" cy="28" r="20" fill="#FFEB3B"/>
+    <path fill="#FBC02D" d="M32 8c-11.05 0-20 8.95-20 20 0 6.64 3.24 12.52 8.21 16.27L22 52h20l1.79-7.73C48.76 40.52 52 34.64 52 28c0-11.05-8.95-20-20-20z"/>
+    <path fill="#9E9E9E" d="M26 50h12v4H26zm-2 6h16v4H24z"/>
+    <path fill="#616161" d="M30 60h4v4h-4z"/>
+    <path fill="#FFF59D" d="M36 28h-8v-8h8v8z"/>
+    <path fill="#FFF" d="M20 20a12 12 0 0 1 8-8v4a8 8 0 0 0-5.66 5.66L20 20z"/>
   </svg>
 );
 
 // Water / Faucet
-export const IconWater = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 22a4 4 0 0 0 4-4c0-3-4-7-4-7s-4 4-4 7a4 4 0 0 0 4 4z"/>
-    <path d="M12 2v6"/>
-    <path d="M8 5h8"/>
+export const IconWater = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#90A4AE" d="M46 22H18v-8h28v8z"/>
+    <path fill="#CFD8DC" d="M14 14h36v8H14z"/>
+    <path fill="#607D8B" d="M40 22h12v20h-8V30H20v12h-8V22h28z"/>
+    <circle cx="16" cy="18" r="6" fill="#F44336"/>
+    <circle cx="48" cy="18" r="6" fill="#2196F3"/>
+    <path fill="#03A9F4" d="M32 40c-6 0-10 4.48-10 10 0 5.52 10 14 10 14s10-8.48 10-14c0-5.52-4-10-10-10z"/>
+    <path fill="#B3E5FC" d="M28 48c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.1-.45 2.1-1.17 2.83A3.98 3.98 0 0 1 32 52c-2.21 0-4-1.79-4-4z"/>
   </svg>
 );
 
-// Chance / Question
-export const IconChance = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-    <path d="M12 17h.01"/>
-    <circle cx="12" cy="12" r="10"/>
+// Chance / Question Mark
+export const IconChance = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#FF9800" d="M32 2L4 32l28 30 28-30L32 2z"/>
+    <path fill="#FFC107" d="M32 6L8 32l24 26 24-26L32 6z"/>
+    <path fill="#FFF" d="M28 20c0-4 10-4 10 0 0 4-4 6-4 10h-4c0-6 8-6 8-10 0-2-4-2-4 0h-6zm2 16h6v6h-6v-6z"/>
   </svg>
 );
 
 // Chest / Gift
-export const IconChest = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="20 12 20 22 4 22 4 12"/>
-    <rect x="2" y="7" width="20" height="5"/>
-    <line x1="12" y1="22" x2="12" y2="7"/>
-    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+export const IconChest = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#1976D2" d="M8 28h48v30H8z"/>
+    <path fill="#2196F3" d="M4 22h56v10H4z"/>
+    <path fill="#0D47A1" d="M8 22s0-10 24-10 24 10 24 10H8z"/>
+    <path fill="#FFC107" d="M28 12h8v46h-8z"/>
+    <path fill="#FFA000" d="M30 30h4v6h-4z"/>
+    <circle cx="32" cy="38" r="4" fill="#FFC107"/>
+    <path fill="#64B5F6" d="M12 32h12v4H12zm28 0h12v4H40z"/>
   </svg>
 );
 
 // Tax / Diamond
-export const IconTax = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M6 3h12l4 6-10 13L2 9Z"/>
-    <path d="M11 3 8 9l4 13"/>
-    <path d="M13 3l3 6-4 13"/>
+export const IconTax = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#E53935" d="M32 62L4 24l12-16h32l12 16L32 62z"/>
+    <path fill="#FFCDD2" d="M16 8l-12 16 28 38L16 8z"/>
+    <path fill="#EF5350" d="M32 62L48 8H16l16 54z"/>
+    <path fill="#FFF" d="M24 16h16v4H24zm6 6h4v8h-4zm0 10h4v4h-4z"/>
   </svg>
 );
 
-// Go / Flag
-export const IconFlag = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-    <line x1="4" y1="22" x2="4" y2="15"/>
+// Go / Arrow
+export const IconFlag = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#4CAF50" d="M4 24h32v-8l24 16-24 16v-8H4V24z"/>
+    <path fill="#388E3C" d="M36 16v8H4v16h32v8l24-16-24-16zm4 8v16l12-8-12-8z"/>
+    <text x="12" y="36" fill="#FFF" fontFamily="Arial" fontWeight="bold" fontSize="16">GO</text>
   </svg>
 );
 
-// Jail / Grid
-export const IconJail = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-    <line x1="9" y1="3" x2="9" y2="21"/>
-    <line x1="15" y1="3" x2="15" y2="21"/>
-    <line x1="3" y1="9" x2="21" y2="9"/>
-    <line x1="3" y1="15" x2="21" y2="15"/>
+// Jail / Bars
+export const IconJail = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#F44336" d="M8 8h48v48H8z"/>
+    <path fill="#FF9800" d="M20 24s0-8 12-8 12 8 12 8v12H20V24z"/>
+    <circle cx="28" cy="22" r="2" fill="#000"/>
+    <circle cx="36" cy="22" r="2" fill="#000"/>
+    <path fill="#000" d="M28 28h8v2h-8z"/>
+    <path fill="#607D8B" d="M14 8h4v48h-4zm12 0h4v48h-4zm12 0h4v48h-4zm12 0h4v48h-4z"/>
+    <path fill="#455A64" d="M8 14h48v4H8zm0 20h48v4H8zm0 20h48v4H8z"/>
   </svg>
 );
 
-// Parking / P
-export const IconParking = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+// Parking / Car
+export const IconParking = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#2196F3" d="M4 4h56v56H4z"/>
+    <path fill="#FFF" d="M24 12h12c6 0 10 4 10 10s-4 10-10 10H32v16h-8V12zm8 12h4c2 0 3-1 3-3s-1-3-3-3h-4v6z"/>
+    <path fill="#E53935" d="M16 48l4-8h24l4 8H16z"/>
+    <path fill="#D32F2F" d="M12 48h40v8H12z"/>
+    <circle cx="20" cy="52" r="3" fill="#FFF"/>
+    <circle cx="44" cy="52" r="3" fill="#FFF"/>
   </svg>
 );
 
-// Police / Siren or Badge
-export const IconPolice = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    <circle cx="12" cy="11" r="3"/>
+// Police / Siren
+export const IconPolice = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#1565C0" d="M12 32h40v16H12z"/>
+    <path fill="#1E88E5" d="M20 16l-8 16h40l-8-16H20z"/>
+    <path fill="#42A5F5" d="M24 20h16v8H24z"/>
+    <circle cx="20" cy="48" r="8" fill="#424242"/>
+    <circle cx="44" cy="48" r="8" fill="#424242"/>
+    <circle cx="20" cy="48" r="4" fill="#E0E0E0"/>
+    <circle cx="44" cy="48" r="4" fill="#E0E0E0"/>
+    <path fill="#F44336" d="M28 8h8v8h-8z"/>
+    <path fill="#FFCDD2" d="M30 10h4v4h-4z"/>
   </svg>
 );
 
 // House
-export const IconHouse = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-    <polyline points="9 22 9 12 15 12 15 22"/>
+export const IconHouse = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#4CAF50" d="M8 32l24-24 24 24v24H8V32z"/>
+    <path fill="#388E3C" d="M32 8L8 32h48L32 8z"/>
+    <path fill="#1B5E20" d="M26 36h12v20H26z"/>
+    <path fill="#E8F5E9" d="M16 36h8v8h-8zm24 0h8v8h-8z"/>
   </svg>
 );
 
 // Hotel / Building
-export const IconHotel = ({ size = 24, color = "currentColor", className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
-    <path d="M9 22v-4h6v4"/>
-    <path d="M8 6h.01"/>
-    <path d="M16 6h.01"/>
-    <path d="M12 6h.01"/>
-    <path d="M12 10h.01"/>
-    <path d="M12 14h.01"/>
-    <path d="M16 10h.01"/>
-    <path d="M16 14h.01"/>
-    <path d="M8 10h.01"/>
-    <path d="M8 14h.01"/>
+export const IconHotel = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64" className={className}>
+    <path fill="#F44336" d="M12 12h40v44H12z"/>
+    <path fill="#D32F2F" d="M12 12l20-8 20 8v44H12z"/>
+    <path fill="#FFCDD2" d="M20 20h6v6h-6zm10 0h6v6h-6zm10 0h6v6h-6zm-20 10h6v6h-6zm10 0h6v6h-6zm10 0h6v6h-6zm-20 10h6v6h-6zm10 0h6v6h-6zm10 0h6v6h-6z"/>
+    <path fill="#B71C1C" d="M26 50h12v6H26z"/>
   </svg>
 );
 

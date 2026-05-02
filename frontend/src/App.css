@@ -454,6 +454,16 @@ body {
 .cell-20 .cell-content { transform: rotate(135deg); }
 .cell-30 .cell-content { transform: rotate(-135deg); }
 
+.cell-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+}
+.corner-icon {
+  margin-top: 10px;
+}
+
 .cell-number {
   position: absolute;
   color: rgba(0, 0, 0, 0.05);
@@ -618,6 +628,56 @@ body {
   align-items: center;
   z-index: 1000;
   border-radius: 8px; /* if board has radius, match it */
+}
+
+/* ===== Center board balance notifications ===== */
+.board-center-toasts {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 500;
+}
+
+.center-toast {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+}
+.center-toast.positive {
+  background: linear-gradient(135deg, rgba(56, 142, 60, 0.92), rgba(76, 175, 80, 0.92));
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+.center-toast.negative {
+  background: linear-gradient(135deg, rgba(198, 40, 40, 0.92), rgba(229, 57, 53, 0.92));
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+.center-toast-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+.center-toast-amount {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .drawn-card {
