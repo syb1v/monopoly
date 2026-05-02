@@ -5,11 +5,14 @@ body {
   margin: 0;
   display: flex;
   justify-content: center;
-  /* Изменили align-items, чтобы страница могла скроллиться вниз */
   align-items: flex-start;
   min-height: 100vh;
   padding: 40px 0; /* Отступы сверху и снизу */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
+
 
 /* Обёртка для всего приложения (доска + карточки) */
 .app-global-wrapper {
@@ -607,7 +610,9 @@ body {
 .card-modal-overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1038,7 +1043,10 @@ body {
 
 /* ===== Player Profile Modal ===== */
 .player-profile-modal {
-  background: #2a2a35;
+  background: rgba(42, 42, 53, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   width: 90%;
   max-width: 380px;

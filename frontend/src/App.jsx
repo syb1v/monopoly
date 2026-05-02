@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MonopolyCard from './MonopolyCard';
 import Dice3D from './Dice3D';
 import MobileApp from './MobileApp';
-import { propertiesData, boardCells } from './data/cards';
+import { boardCells } from './data/cards';
+import { 
+  IconTrain, IconLightbulb, IconWater, IconChance, IconChest, 
+  IconTax, IconHouse, IconHotel 
+} from './Icons';
 import './App.css';
 
 function App({ roomId, onLeave }) {
@@ -624,11 +628,16 @@ function App({ roomId, onLeave }) {
                 <div className="inventory-list">
                   {myProps.map(p => (
                     <div key={p.id} className="inventory-item" onClick={() => setSelectedPropId(p.id)}>
-                      {p.color && <span className="inv-color" style={{ backgroundColor: p.color }}></span>}
-                      {p.type === 'railroad' && <span className="inv-icon">🚂</span>}
-                      {p.type === 'utility' && <span className="inv-icon">{p.id === 'prop_12' ? '💡' : '🚰'}</span>}
-                      <span className="inv-name" style={{ textDecoration: p.mortgaged ? 'line-through' : 'none', opacity: p.mortgaged ? 0.5 : 1 }}>{p.name}</span>
-                      {p.houses > 0 && <span className="inv-icon" style={{ marginLeft: 5 }}>{p.houses === 5 ? '🏨' : '🏠'.repeat(p.houses)}</span>}
+                      <div className="inv-prop-info">
+                        {p.color && <span className="inv-color" style={{ backgroundColor: p.color }}></span>}
+                        <span className="inv-prop-name" style={{ textDecoration: p.mortgaged ? 'line-through' : 'none', opacity: p.mortgaged ? 0.5 : 1 }}>{p.name}</span>
+                        {p.type === 'railroad' && <span className="inv-icon"><IconTrain size={14}/></span>}
+                        {p.type === 'utility' && <span className="inv-icon">{p.id === 'prop_12' ? <IconLightbulb size={14}/> : <IconWater size={14}/>}</span>}
+                        {p.mortgaged && <span className="inv-mortgaged-badge">ЗАЛОГ</span>}
+                        {p.houses > 0 && <span className="inv-icon" style={{ marginLeft: 5 }}>
+                          {p.houses === 5 ? <IconHotel size={14} color="#e53935"/> : Array.from({length: p.houses}).map((_, i) => <IconHouse key={i} size={14} color="#4caf50"/>)}
+                        </span>}
+                      </div>
                       <span className="inv-hint">ℹ️</span>
                     </div>
                   ))}
@@ -934,12 +943,12 @@ function App({ roomId, onLeave }) {
                       </div>
                     )}
                     
-                    {cell.type === 'railroad' && <div className="cell-icon">🚂</div>}
-                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon">💡</div>}
-                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon">🚰</div>}
-                    {cell.type === 'chance' && <div className="cell-icon">❓</div>}
-                    {cell.type === 'chest' && <div className="cell-icon">🎁</div>}
-                    {cell.type === 'tax' && <div className="cell-icon">💎</div>}
+                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={18}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={18}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={18}/></div>}
+                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={18} color="#f57c00"/></div>}
+                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={18} color="#1976d2"/></div>}
+                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={18} color="#e53935"/></div>}
                     
                     <div className="cell-name">{cell.name}</div>
                     

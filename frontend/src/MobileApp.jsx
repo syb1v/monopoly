@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MonopolyCard from './MonopolyCard';
 import Dice3D from './Dice3D';
 import { boardCells } from './data/cards';
+import { 
+  IconTrain, IconLightbulb, IconWater, IconChance, IconChest, 
+  IconTax, IconMap, IconGamepad, IconProperties, IconLog,
+  IconBook, IconStop
+} from './Icons';
 import './MobileApp.css';
 
 export default function MobileApp({
@@ -116,25 +121,24 @@ export default function MobileApp({
                 >
                   <span className="cell-number">{cellIndex}</span>
                   <div className="cell-content">
-                    {cell.type === 'street' && (
-                      <div className="property-header" style={{ backgroundColor: cell.color, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        {gameState.properties?.[cell.id]?.houses > 0 && (
-                          <span style={{ fontSize: '8px' }}>
-                            {gameState.properties[cell.id].houses === 5 ? '🏨' : '🏠'.repeat(gameState.properties[cell.id].houses)}
-                          </span>
-                        )}
+                    {cell.color && <div className="cell-color" style={{ backgroundColor: cell.color }} />}
+                    <div className="cell-name">{cell.name}</div>
+                    {gameState.properties?.[cell.id]?.houses > 0 && (
+                      <div className="property-header">
+                        <span style={{ display: 'flex', gap: '1px', marginTop: '2px' }}>
+                          {gameState.properties[cell.id].houses === 5 ? <IconHotel size={10} color="#e53935"/> : Array.from({length: gameState.properties[cell.id].houses}).map((_, i) => <IconHouse key={i} size={10} color="#4caf50"/>)}
+                        </span>
                       </div>
                     )}
                     {gameState.properties?.[cell.id]?.mortgaged && (
-                      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'red', fontSize: '24px', fontWeight: 'bold' }}>ЗАЛОГ</div>
+                      <div className="mortgage-overlay">ЗАЛОГ</div>
                     )}
-                    {cell.type === 'railroad' && <div className="cell-icon">🚂</div>}
-                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon">💡</div>}
-                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon">🚰</div>}
-                    {cell.type === 'chance' && <div className="cell-icon">❓</div>}
-                    {cell.type === 'chest' && <div className="cell-icon">🎁</div>}
-                    {cell.type === 'tax' && <div className="cell-icon">💎</div>}
-                    <div className="cell-name">{cell.name}</div>
+                    {cell.type === 'railroad' && <div className="cell-icon"><IconTrain size={18}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_12' && <div className="cell-icon"><IconLightbulb size={18}/></div>}
+                    {cell.type === 'utility' && cell.id === 'prop_28' && <div className="cell-icon"><IconWater size={18}/></div>}
+                    {cell.type === 'chance' && <div className="cell-icon"><IconChance size={18} color="#f57c00"/></div>}
+                    {cell.type === 'chest' && <div className="cell-icon"><IconChest size={18} color="#1976d2"/></div>}
+                    {cell.type === 'tax' && <div className="cell-icon"><IconTax size={18} color="#e53935"/></div>}
                     {cell.price && <div className="cell-price">${cell.price}</div>}
                   </div>
                   <div className="tokens-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -340,12 +344,14 @@ export default function MobileApp({
           {myProps.map(p => (
             <div key={p.id} className={`mob-prop-item ${p.mortgaged ? 'mortgaged' : ''}`} onClick={() => setSelectedPropId(p.id)}>
               {p.color && <div className="mob-prop-color" style={{ backgroundColor: p.color }} />}
-              {p.type === 'railroad' && <div className="mob-prop-color" style={{ backgroundColor: '#333' }}>🚂</div>}
-              {p.type === 'utility' && <div className="mob-prop-color" style={{ backgroundColor: '#555' }}>{p.id === 'prop_12' ? '💡' : '🚰'}</div>}
+              {p.type === 'railroad' && <div className="mob-prop-color" style={{ backgroundColor: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconTrain size={16} color="#fff"/></div>}
+              {p.type === 'utility' && <div className="mob-prop-color" style={{ backgroundColor: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{p.id === 'prop_12' ? <IconLightbulb size={16} color="#fff"/> : <IconWater size={16} color="#fff"/>}</div>}
               <div className="mob-prop-details">
                 <span className="mob-prop-name">{p.name}</span>
                 {p.mortgaged && <span className="mob-mortgaged-badge">ЗАЛОГ</span>}
-                {p.houses > 0 && <span className="mob-houses">{p.houses === 5 ? '🏨' : '🏠'.repeat(p.houses)}</span>}
+                {p.houses > 0 && <span className="mob-houses" style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                  {p.houses === 5 ? <IconHotel size={14} color="#e53935"/> : Array.from({length: p.houses}).map((_, i) => <IconHouse key={i} size={14} color="#4caf50"/>)}
+                </span>}
               </div>
               <span className="mob-prop-hint">›</span>
             </div>
@@ -396,10 +402,10 @@ export default function MobileApp({
 
   // ─── INSTRUCTIONS ────────────────────────────────────────────────────────────
   const tabs = [
-    { id: 'board', icon: '🗺️', label: 'Доска' },
-    { id: 'action', icon: '🎮', label: 'Ход', badge: needsAction },
-    { id: 'props', icon: '🏘️', label: 'Имущество' },
-    { id: 'log', icon: '📋', label: 'Лог' },
+    { id: 'board', icon: <IconMap size={24}/>, label: 'Доска' },
+    { id: 'action', icon: <IconGamepad size={24}/>, label: 'Ход', badge: needsAction },
+    { id: 'props', icon: <IconProperties size={24}/>, label: 'Имущество' },
+    { id: 'log', icon: <IconLog size={24}/>, label: 'Лог' },
   ];
 
   return (
@@ -408,8 +414,8 @@ export default function MobileApp({
       <div className="mob-header">
         <span className="mob-header-title">MONOPOLY</span>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="mob-icon-btn" onClick={() => setInstructionsOpen(true)}>📖</button>
-          <button className="mob-icon-btn danger" onClick={endGame}>🛑</button>
+          <button className="mob-icon-btn" onClick={() => setInstructionsOpen(true)}><IconBook size={20}/></button>
+          <button className="mob-icon-btn danger" onClick={endGame}><IconStop size={20}/></button>
         </div>
       </div>
 

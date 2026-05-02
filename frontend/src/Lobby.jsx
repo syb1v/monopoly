@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { IconDice } from './Icons';
 import './Lobby.css';
 
 export default function Lobby({ onJoin }) {
@@ -51,7 +52,7 @@ export default function Lobby({ onJoin }) {
     <div className="lobby-wrapper">
       <div className="lobby-card">
         <div className="lobby-logo">
-          <span className="lobby-logo-icon">🎲</span>
+          <span className="lobby-logo-icon"><IconDice size={48} color="#4caf50"/></span>
           <h1>MONOPOLY</h1>
           <p className="lobby-subtitle">Классическая игра в новом формате</p>
         </div>

@@ -1,5 +1,9 @@
 import React from 'react';
 import './MonopolyCard.css';
+import { 
+  IconTrain, IconLightbulb, IconWater, IconChance, IconChest, 
+  IconTax, IconFlag, IconJail, IconParking, IconPolice, IconPin 
+} from './Icons';
 
 export default function MonopolyCard({ property }) {
   const renderBack = () => (
@@ -53,7 +57,7 @@ export default function MonopolyCard({ property }) {
       <div className={`monopoly-card ${property.mortgaged ? 'is-flipped' : ''}`}>
         <div className="card-inner">
           <div className="card-front">
-        <div className="card-header-icon">🚂</div>
+        <div className="card-header-icon"><IconTrain size={48} color="#333"/></div>
         <h2 className="card-title-special">{property.name}</h2>
 
         <div className="card-body">
@@ -76,12 +80,12 @@ export default function MonopolyCard({ property }) {
   }
 
   if (property.type === 'utility') {
-    const icon = property.id === 'prop_12' ? '💡' : '🚰';
+    const IconComponent = property.id === 'prop_12' ? IconLightbulb : IconWater;
     return (
       <div className={`monopoly-card ${property.mortgaged ? 'is-flipped' : ''}`}>
         <div className="card-inner">
           <div className="card-front">
-        <div className="card-header-icon">{icon}</div>
+        <div className="card-header-icon"><IconComponent size={48} color="#333"/></div>
         <h2 className="card-title-special">{property.name}</h2>
 
         <div className="card-body">
@@ -104,7 +108,7 @@ export default function MonopolyCard({ property }) {
   if (property.type === 'tax') {
     return (
       <div className="monopoly-card special-cell tax">
-        <div className="card-header-icon">💎</div>
+        <div className="card-header-icon"><IconTax size={48} color="#e53935"/></div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
           <p className="special-desc">
@@ -118,9 +122,11 @@ export default function MonopolyCard({ property }) {
 
   if (property.type === 'chance' || property.type === 'chest') {
     const isChance = property.type === 'chance';
+    const IconComponent = isChance ? IconChance : IconChest;
+    const color = isChance ? "#f57c00" : "#1976d2";
     return (
       <div className={`monopoly-card special-cell ${property.type}`}>
-        <div className="card-header-icon">{isChance ? '❓' : '🎁'}</div>
+        <div className="card-header-icon"><IconComponent size={48} color={color}/></div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
           <p className="special-desc">
@@ -134,23 +140,27 @@ export default function MonopolyCard({ property }) {
   }
 
   if (property.type?.includes('corner')) {
-    let icon = '🏁';
+    let IconComponent = IconFlag;
+    let color = "#4caf50";
     let desc = 'Проходя через эту клетку, вы получаете зарплату $200.';
     if (property.type.includes('jail')) {
-      icon = '🚓';
+      IconComponent = IconJail;
+      color = "#333";
       desc = 'Вы просто посещаете тюрьму. Если вы попали сюда по указанию, оставайтесь здесь до выхода.';
     }
     if (property.type.includes('parking')) {
-      icon = '🅿';
+      IconComponent = IconParking;
+      color = "#1976d2";
       desc = 'Бесплатная стоянка. Отдыхайте до следующего хода. Никаких штрафов или выплат.';
     }
     if (property.type.includes('police')) {
-      icon = '👮';
+      IconComponent = IconPolice;
+      color = "#e53935";
       desc = 'ОТПРАВЛЯЙТЕСЬ В ТЮРЬМУ! Переместите свою фишку на клетку Тюрьма. Не проходите через СТАРТ, не получайте $200.';
     }
     return (
       <div className="monopoly-card special-cell corner">
-        <div className="card-header-icon">{icon}</div>
+        <div className="card-header-icon"><IconComponent size={48} color={color}/></div>
         <h2 className="card-title-special">{property.name}</h2>
         <div className="card-body">
           <p className="special-desc">{desc}</p>
@@ -160,7 +170,7 @@ export default function MonopolyCard({ property }) {
   }
 
   return <div className="monopoly-card special-cell">
-    <div className="card-header-icon">📍</div>
+    <div className="card-header-icon"><IconPin size={48} color="#333"/></div>
     <h2 className="card-title-special">{property.name}</h2>
   </div>;
 }
