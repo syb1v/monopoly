@@ -104,7 +104,13 @@ class Game:
                 "balance": 1500,
                 "name": final_name,
                 "jail_turns": 0,
-                "jail_cards": 0
+                "jail_cards": 0,
+                "stats": {
+                    "turns_played": 0,
+                    "money_spent": 0,
+                    "cards_drawn": 0,
+                    "fines_paid": 0
+                }
             }
             self.turn_order.append(client_id)
             if self.current_turn_player_id is None:
@@ -163,6 +169,8 @@ class Game:
         if cell["type"] == "tax":
             amount = cell["price"]
             player["balance"] -= amount
+            player["stats"]["fines_paid"] += amount
+            player["stats"]["money_spent"] += amount
             self.log_event(f"{player_name} попал на «{cell['name']}» и заплатил ${amount}.")
             self.landing_event = None
             return
@@ -187,7 +195,7 @@ class Game:
                 "card": card,
                 "for_player": client_id
             }
-            
+            player["stats"]["cards_drawn"] += 1
             self.log_event(f"{player_name} тянет карту «{cell['name']}»: {card['text']}")
             
             # Apply effect
@@ -205,6 +213,8 @@ class Game:
                 self.turn_phase = "ACTION"
             elif action == "pay":
                 player["balance"] -= card["amount"]
+                player["stats"]["fines_paid"] += card["amount"]
+                player["stats"]["money_spent"] += card["amount"]
             elif action == "earn":
                 player["balance"] += card["amount"]
             elif action == "pay_houses":
@@ -213,6 +223,7 @@ class Game:
                 total_hotels = sum(1 for p in self.properties.values() if p.get("owner_id") == client_id and p.get("houses", 0) == 5)
                 cost = total_houses * card["house"] + total_hotels * card["hotel"]
                 player["balance"] -= cost
+                player["stats"]["money_spent"] += cost
                 if cost > 0:
                     self.log_event(f"{player_name} платит ${cost} за ремонт недвижимости.")
             elif action == "move_rel":
@@ -275,6 +286,7 @@ class Game:
             owner_name = owner["name"]
             player["balance"] -= rent
             owner["balance"] += rent
+            player["stats"]["money_spent"] += rent
             self.log_event(
                 f"{player_name} попал на «{cell['name']}» ({owner_name}) и заплатил аренду ${rent}."
             )
@@ -329,6 +341,8 @@ class Game:
         total = dice1 + dice2
         is_double = (dice1 == dice2)
 
+        player["stats"]["turns_played"] += 1
+
         self.roll_counter += 1
         self.last_roll = {
             "dice1": dice1,
@@ -350,6 +364,8 @@ class Game:
                     # Forced to pay 50
                     if player["balance"] >= 50:
                         player["balance"] -= 50
+                        player["stats"]["fines_paid"] += 50
+                        player["stats"]["money_spent"] += 50
                         self.log_event(f"{player_name} выбросил {total}. Третья попытка: платит $50 штрафа и выходит.")
                         # Continue normal move
                     else:
@@ -398,6 +414,8 @@ class Game:
         player = self.players[client_id]
         if player.get("jail_turns", 0) > 0 and player["balance"] >= 50:
             player["balance"] -= 50
+            player["stats"]["fines_paid"] += 50
+            player["stats"]["money_spent"] += 50
             player["jail_turns"] = 0
             self.log_event(f"{player['name']} заплатил залог $50 и может ходить.")
 
@@ -427,6 +445,7 @@ class Game:
             return
 
         player["balance"] -= price
+        player["stats"]["money_spent"] += price
         self.properties[property_id] = {
             "owner_id": client_id,
             "houses": 0,
@@ -528,6 +547,7 @@ class Game:
         if winner_id and winner_id in self.players:
             player = self.players[winner_id]
             player["balance"] -= price
+            player["stats"]["money_spent"] += price
             self.properties[property_id] = {
                 "owner_id": winner_id,
                 "houses": 0,
@@ -574,6 +594,7 @@ class Game:
             return
 
         self.players[client_id]["balance"] -= cost
+        self.players[client_id]["stats"]["money_spent"] += cost
         prop_state["mortgaged"] = False
         self.log_event(f"{self.players[client_id]['name']} выкупил «{cell['name']}» за ${cost}.")
 
@@ -624,6 +645,7 @@ class Game:
             return
 
         self.players[client_id]["balance"] -= cost
+        self.players[client_id]["stats"]["money_spent"] += cost
         prop_state["houses"] = prop_state.get("houses", 0) + 1
         
         building_name = "отель" if prop_state["houses"] == 5 else "дом"
