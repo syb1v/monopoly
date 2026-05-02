@@ -205,7 +205,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, client_id: str,
     finally:
         if room_id in connections and websocket in connections[room_id]:
             connections[room_id].remove(websocket)
-        game.remove_player(client_id)
+        # We don't remove the player here to allow re-joining on page reload
         _save_game(room_id, db)
         await broadcast_state(room_id)
         db.close()
